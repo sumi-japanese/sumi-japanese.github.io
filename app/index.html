@@ -351,7 +351,7 @@ try{ const s=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
       <form class="answer" id="qForm" autocomplete="off">
         <img class="qmascot" id="qMascot" src="../assets/mascot/sumi-think.svg" alt="" width="596" height="836">
         <input id="qInput" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" enterkeyhint="go" aria-label="Your answer">
-        <button class="go" type="submit" aria-label="Submit answer">Check</button>
+        <button class="go" id="qGo" type="submit">Check</button>
       </form>
       <div class="msg" id="qMsg"></div>
       <div class="info hidden" id="qInfo"></div>
@@ -1909,6 +1909,7 @@ function nextQ(){
   fillFace($("qFace"), x, t);
   $("qPrompt").innerHTML = PROMPTS[t];
   const inp=$("qInput"); inp.value=""; inp.className=""; lockedValue=null;
+  $("qGo").textContent = "Check"; inp.enterKeyHint = "go";
   setMascot($("qMascot"), "think");
   inp.placeholder = PLACEHOLDERS[t];
   inp.lang = KANA_INPUT.has(t) ? "ja" : "en";
@@ -1921,7 +1922,14 @@ function nextQ(){
 // Phones: never make the box read-only (that hides the keyboard between questions).
 // After answering, the box stays editable but typing is ignored until the next question.
 let lockedValue = null;
-$("qInput").addEventListener("beforeinput", e=>{ if(Q && Q.answered) e.preventDefault(); });
+// (Enter must never be blocked here: some browsers report it as an "insertLineBreak" input.)
+$("qInput").addEventListener("beforeinput", e=>{ if(Q && Q.answered && e.inputType!=="insertLineBreak") e.preventDefault(); });
+// Enter: check the answer, or go to the next question once it's been answered
+$("qInput").addEventListener("keydown", e=>{
+  if(e.key!=="Enter" || e.isComposing || !Q || !Q.cur) return;
+  e.preventDefault();
+  if(Q.answered) nextQ(); else $("qForm").requestSubmit();
+});
 function convertKana(el){
   if(!Q || !Q.cur || Q.answered) return;
   const t=Q.cur.t; if(!KANA_INPUT.has(t)) return;
@@ -1979,6 +1987,7 @@ $("qForm").addEventListener("submit", e=>{
     ok = checkMeaning(x, ans);
   }
   Q.answered=true; Q.asked++; lockedValue=inp.value;
+  $("qGo").textContent = "Next"; inp.enterKeyHint = "next";
   const day=logDay(); day.a++; if(ok) day.r++;
   const tr=Q.track[x.id];
   if(ok){
