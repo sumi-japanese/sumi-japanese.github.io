@@ -309,7 +309,7 @@ try{ const s=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
   <main id="home">
     <div class="actions">
       <button class="big lessons" id="lessonBtn"><span class="n" id="lessonN">0</span><span class="l">Lessons</span><span class="h" id="lessonHint">Learn 5 new items</span></button>
-      <button class="big reviews" id="reviewBtn"><span class="n" id="reviewN">0</span><span class="l">Reviews</span><span class="h">Due now</span></button>
+      <button class="big reviews" id="reviewBtn"><span class="n" id="reviewN">0</span><span class="l">Reviews</span><span class="h" id="reviewHint">Due now</span></button>
       <img class="revmascot" id="revMascot" src="../assets/mascot/sumi-happy.svg" alt="" width="596" height="836">
     </div>
     <p class="next" id="nextLine"></p>
@@ -413,6 +413,16 @@ try{ const s=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
       </div>
       <div class="sliderscale" aria-hidden="true"><span>1</span><span>50</span></div>
       <p class="note">How many new kana, kanji, grammar points or words each lesson teaches before its quiz.</p>
+    </fieldset>
+    <fieldset>
+      <legend>Reviews per session</legend>
+      <div class="seg">
+        <label><input type="radio" name="reviewCap" value="10">10</label>
+        <label><input type="radio" name="reviewCap" value="20">20</label>
+        <label><input type="radio" name="reviewCap" value="50">50</label>
+        <label><input type="radio" name="reviewCap" value="all">All</label>
+      </div>
+      <p class="note">The most reviews one session asks. Anything left over stays due for your next session.</p>
     </fieldset>
     <fieldset>
       <legend>Falling petals</legend>
@@ -1916,6 +1926,7 @@ function render(){
   $("lessonN").textContent=L; $("reviewN").textContent=R;
   setMascot($("revMascot"), R ? "happy" : "sleepy", R ? "" : "Sumi is sleepy: no reviews due");
   $("lessonHint").textContent=`Learn ${Math.min(batchSize(), L) || batchSize()} new items`;
+  $("reviewHint").textContent = R > reviewCap() ? `Review ${reviewCap()} now` : "Due now";
   $("lessonBtn").disabled=!L; $("reviewBtn").disabled=!R;
   const anyOn = DECKS.some(d=>deckOn(d.id));
   const upcoming=ITEMS.map(x=>state.items[x.id]).filter(i=>i&&i.stage>0&&i.stage<9&&i.next>Date.now()).map(i=>i.next).sort((a,b)=>a-b);
@@ -2165,7 +2176,7 @@ $("wrapUp").onclick=()=>{
 function goHome(){ Q=null; render(); show("home"); }
 $("homeBtn").onclick=goHome;
 $("lessonBtn").onclick=startLessons;
-$("reviewBtn").onclick=()=>{ const due=shuffle(dueNow()); if(due.length) startQuiz(due.slice(0,50),"review"); };
+$("reviewBtn").onclick=()=>{ const due=shuffle(dueNow()); if(due.length) startQuiz(due.slice(0,reviewCap()),"review"); };
 $("resetBtn").onclick=()=>{ if(confirm("Reset all progress? Every item goes back to not started and your stats are cleared.")){ state.items={}; state.log={}; save(); render(); } };
 
 // ---------- Stats ----------
@@ -2247,7 +2258,8 @@ document.addEventListener("focusin", e=>{ const t=e.target.closest("[data-tip]")
 window.addEventListener("scroll", ()=>{ tip.hidden=true; }, {passive:true});
 
 // ---------- Settings ----------
-let settings = {theme:"auto", petals:"auto", batch:"5"};
+let settings = {theme:"auto", petals:"auto", batch:"5", reviewCap:"50"};
+const reviewCap = () => settings.reviewCap==="all" ? Infinity : (parseInt(settings.reviewCap,10) || 50);
 const BATCH_MIN = 1, BATCH_MAX = 50;
 const clampBatch = n => Math.min(BATCH_MAX, Math.max(BATCH_MIN, Math.round(n)));
 const batchSize = () => { const n = parseInt(settings.batch, 10); return Number.isFinite(n) ? clampBatch(n) : 5; };
@@ -2271,7 +2283,7 @@ $("setBtn").onclick=()=>{
   // the dialog focuses its first field (the email box), which pops up the phone keyboard; focus the title instead
   if(matchMedia("(pointer: coarse)").matches) $("setTitle").focus({preventScroll:true});
 };
-$("setDlg").addEventListener("change", e=>{ if(e.target.type!=="radio") return; settings[e.target.name]=e.target.value; applySettings(); });
+$("setDlg").addEventListener("change", e=>{ if(e.target.type!=="radio") return; settings[e.target.name]=e.target.value; applySettings(); render(); });
 $("batchRange").addEventListener("input", e=>setBatch(+e.target.value));
 // typing: only apply whole numbers in range; tidy up the box when you leave it
 $("batchNum").addEventListener("input", e=>{ const n=parseInt(e.target.value,10); if(n>=BATCH_MIN && n<=BATCH_MAX){ settings.batch=String(n); $("batchRange").value=n; $("batchRange").style.setProperty("--fill", `${(n-BATCH_MIN)/(BATCH_MAX-BATCH_MIN)*100}%`); applySettings(); render(); } });
