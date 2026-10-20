@@ -1804,11 +1804,25 @@ function generalSynonyms(f){
   return hits.length===1 ? hits[0] : [];
 }
 const usesGeneralSynonyms = item => item.type==="vocab" || item.type==="kanji" || item.type==="radical";
+// Loose form: drop helper words in front ("have done" → "done", "be born" → "born", "is doing" → "doing")
+// and possessives ("make up one's mind" → "make up mind", "enjoy myself" → "enjoy").
+// Only used when something meaningful is left: "is not", "have to", "had better", "have not yet" stay as they are.
+const AUX_LEAD = /^(?:(?:have|has|had|be|is|are|was|were|been|being|am)\s+)+/;
+const POSS = /\b(?:ones|one s|oneself|my|your|his|her|their|our|myself|yourself|himself|herself|themselves|ourselves)\b/g;
+const LOOSE_EMPTY = new Set(["not","no","to","yet","ever","just","already","better","a","an","the","than","of","so","it","that"]);
+function loose(t){
+  const l=t.replace(AUX_LEAD,"").replace(POSS," ").replace(/\s+/g," ").trim().replace(/^(to|a|an|the) /,"");
+  return l!==t && l.split(" ").some(w=>w && !LOOSE_EMPTY.has(w)) ? l : null;
+}
 function checkMeaning(item, ans){
   const a=normM(ans); if(!a) return false;
   const forms=meaningForms(item), own=new Set(forms.map(f=>f.t));
   // 1) the item's own meanings, with the small typo tolerance (never an opposite)
   if(forms.some(f=>!isOpposite(a,f.t) && lev(a,f.t)<=typoTol(f.t))) return true;
+  // 1b) the same, ignoring helper words and possessives on either side — but never another item's main meaning in the deck
+  const la=loose(a)||a, blockedL=otherMains(item);
+  if(forms.some(f=>{ const lf=loose(f.t)||f.t; if(lf===f.t && la===a) return false;
+      return !isOpposite(la,lf) && !isOpposite(a,f.t) && (own.has(a) || !blockedL.has(la)) && lev(la,lf)<=typoTol(lf); })) return true;
   // 2) general synonyms (not for grammar): exact (or 1 typo for long words), never an opposite,
   //    never another item's main meaning in the same deck, and only from the meanings the card shows
   if(!usesGeneralSynonyms(item)) return false;
