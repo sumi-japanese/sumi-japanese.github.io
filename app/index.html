@@ -2440,14 +2440,24 @@ const deckOn = d => !!state.decks[d];
 // Kanji a word needs are offered even if their own deck is off, so a word never waits forever.
 const kanjiOf = v => v._kanji ||= [...new Set([...v.k])].filter(ch=>BY[ch]?.type==="kanji");
 const wordReady = v => kanjiOf(v).every(ch=>state.items[ch]);
+const VRANK = {v5:0, v4:1, v3:2};
 function lessonsAvail(){
-  const need=new Set();
-  ITEMS.forEach(x=>{ if(x.type==="vocab" && deckOn(x.deck) && !state.items[x.id]) kanjiOf(x).forEach(ch=>{ if(!state.items[ch]) need.add(ch); }); });
-  const avail = ITEMS.filter(x=>!state.items[x.id] && (x.type==="vocab" ? deckOn(x.deck) && wordReady(x) : deckOn(x.deck) || need.has(x.id)));
-  // words whose kanji you've just met come first, so 先輩 follows soon after 先 and 輩 instead of after the whole kanji deck
-  const unlocked = avail.filter(x=>x.type==="vocab" && kanjiOf(x).length);
-  const u = new Set(unlocked);
-  return [...unlocked, ...avail.filter(x=>!u.has(x))];
+  const words = ITEMS.filter(x=>x.type==="vocab" && deckOn(x.deck) && !state.items[x.id]);
+  const missing = w => kanjiOf(w).filter(ch=>!state.items[ch]);
+  // 1) words whose kanji you've all met (so 先輩 comes right after 先 and 輩)
+  const unlocked = words.filter(w=>kanjiOf(w).length && !missing(w).length);
+  // 2) kana, radicals: still taught in their usual place before any kanji
+  const basics = ITEMS.filter(x=>(x.type==="kana" || x.type==="radical") && deckOn(x.deck) && !state.items[x.id]);
+  // 3) kanji your words need, starting with the words closest to unlocking (fewest new kanji, easier level first),
+  //    even if that kanji's deck is off, so a word never waits forever
+  const needKanji=[], seen=new Set();
+  words.map(w=>[w, missing(w)]).filter(([,m])=>m.length)
+    .sort((a,b)=>a[1].length-b[1].length || VRANK[a[0].deck]-VRANK[b[0].deck])
+    .forEach(([,m])=>m.forEach(ch=>{ if(!seen.has(ch)){ seen.add(ch); needKanji.push(BY[ch]); } }));
+  // 4) everything else from your decks, in the usual order (other kanji, grammar, kana-only words)
+  const used = new Set([...unlocked, ...basics, ...needKanji]);
+  const rest = ITEMS.filter(x=>!used.has(x) && !state.items[x.id] && deckOn(x.deck) && (x.type!=="vocab" || !kanjiOf(x).length));
+  return [...unlocked, ...basics, ...needKanji, ...rest];
 }
 // Deck on/off only controls NEW lessons. Anything already learned keeps coming back for review.
 const dueNow = () => ITEMS.filter(x=>{const it=state.items[x.id]; return it && it.stage>0 && it.stage<9 && it.next<=Date.now();});
