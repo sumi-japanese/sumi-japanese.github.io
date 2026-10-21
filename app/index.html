@@ -397,6 +397,16 @@ try{ const s=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
     <h2 id="setTitle" tabindex="-1" style="outline:none">Settings</h2>
     <fieldset id="acct"></fieldset>
     <fieldset>
+      <legend>What you already know</legend>
+      <div class="seg">
+        <label><input type="radio" name="level" value="0">Nothing yet</label>
+        <label><input type="radio" name="level" value="5">N5</label>
+        <label><input type="radio" name="level" value="4">N4</label>
+        <label><input type="radio" name="level" value="3">N3</label>
+      </div>
+      <p class="note">Skips lessons up to that level (kana, radicals, kanji, grammar and words) and sends them to reviews over the next two weeks as a quick check. Anything you miss drops back so you relearn it. Choose a lower level to get the skipped lessons back, or open any item and press "Relearn".</p>
+    </fieldset>
+    <fieldset>
       <legend>Theme</legend>
       <div class="seg">
         <label><input type="radio" name="theme" value="auto">Auto</label>
@@ -2477,6 +2487,7 @@ function normalizeState(){
       : Object.fromEntries(DECKS.map(d=>[d.id, !OFF_BY_DEFAULT.has(d.id)]));
   }
   if(!state.log) state.log={};
+  if(!state.level) state.level="0";
   // v2 moved some kanji from N5 to N4 / Extra to match jisho.org; keep reviewing anything already learned
   if(!state.v){ if(state.decks.n5 && Object.keys(state.items).length){ state.decks.n4=true; state.decks.nx=true; } state.v=2; }
 }
@@ -2787,7 +2798,8 @@ $("grids").addEventListener("click", e=>{
   const t=e.target.closest(".tile"); if(!t) return; const x=BY[t.dataset.id], it=state.items[x.id];
   fillFace($("dFace"), x, "");
   $("dInfo").innerHTML = infoHTML(x) + `<p style="color:var(--muted);font-size:14px;margin:12px 0 0">${
-    !it ? "Not started yet." : it.stage>=9 ? "Mastered. It won't come back for review." : `${GROUPS[GROUP(it.stage)][0]} · next review ${it.next<=Date.now()?"now":fmtWhen(it.next)}`}</p>`;
+    !it ? "Not started yet." : it.stage>=9 ? "Mastered. It won't come back for review." : `${GROUPS[GROUP(it.stage)][0]}${it.skip?" (skipped by your level)":""} · next review ${it.next<=Date.now()?"now":fmtWhen(it.next)}`}</p>${
+    it ? `<button class="btn" data-relearn="${x.id}" style="margin-top:12px">Relearn</button>` : ""}`;
   $("dlg").showModal();
 });
 $("dClose").onclick=()=>$("dlg").close();
@@ -3084,13 +3096,44 @@ function showBatch(n){
 }
 function setBatch(n){ n = clampBatch(n); settings.batch = String(n); showBatch(n); applySettings(); render(); }
 $("setBtn").onclick=()=>{
-  document.querySelectorAll('#setDlg input[type=radio]').forEach(i=>i.checked = settings[i.name]===i.value);
+  document.querySelectorAll('#setDlg input[type=radio]').forEach(i=>i.checked = (i.name==="level" ? state.level : settings[i.name])===i.value);
   showBatch(batchSize());
   $("setDlg").showModal();
   // the dialog focuses its first field (the email box), which pops up the phone keyboard; focus the title instead
   if(matchMedia("(pointer: coarse)").matches) $("setTitle").focus({preventScroll:true});
 };
-$("setDlg").addEventListener("change", e=>{ if(e.target.type!=="radio") return; settings[e.target.name]=e.target.value; applySettings(); render(); });
+$("setDlg").addEventListener("change", e=>{ if(e.target.type!=="radio") return;
+  if(e.target.name==="level"){ if(!setLevel(e.target.value)) document.querySelectorAll('#setDlg input[name=level]').forEach(i=>i.checked = i.value===state.level); return; }
+  settings[e.target.name]=e.target.value; applySettings(); render(); });
+
+// ---------- "What you already know": skip lessons up to a level, check them in reviews ----------
+const LEVEL_DECKS = {"0":[], "5":["hira","kata","rad","n5","g5","v5"]};
+LEVEL_DECKS["4"] = [...LEVEL_DECKS["5"], "n4","g4","v4"];
+LEVEL_DECKS["3"] = [...LEVEL_DECKS["4"], "n3","g3","v3"];
+const LEVEL_NAME = {"0":"nothing yet", "5":"N5", "4":"N4", "3":"N3"};
+function setLevel(lv){
+  const old = state.level || "0"; if(lv===old) return true;
+  const decks = new Set(LEVEL_DECKS[lv]), now = Date.now();
+  if(LEVEL_DECKS[lv].length > LEVEL_DECKS[old].length){
+    // raising: everything not started yet in those decks goes to reviews at "Familiar", spread over two weeks
+    const add = ITEMS.filter(x=>decks.has(x.deck) && !state.items[x.id]);
+    if(add.length && !confirm(`Mark ${add.length} items up to ${LEVEL_NAME[lv]} as known?\n\nThey skip their lessons and come up in reviews over the next two weeks as a quick check. Anything you miss drops back so you relearn it. Your existing progress isn't changed.`)) return false;
+    add.forEach((x,i)=>{ state.items[x.id] = {stage:5, next: now + 3600e3 + Math.round(i/add.length*14*864e5), skip:1}; });
+  } else {
+    // lowering: skipped items above the new level that haven't been checked in a review yet get their lessons back
+    const back = ITEMS.filter(x=>!decks.has(x.deck) && state.items[x.id]?.skip);
+    if(back.length && !confirm(`Bring back the lessons for ${back.length} skipped items above ${LEVEL_NAME[lv]}?\n\nItems you've already answered in a review keep their progress.`)) return false;
+    back.forEach(x=>{ delete state.items[x.id]; });
+  }
+  state.level = lv; save(); render(); return true;
+}
+// "Relearn": reset one item so it gets its lesson again
+$("dInfo").addEventListener("click", e=>{
+  const b=e.target.closest("[data-relearn]"); if(!b) return;
+  const x=BY[b.dataset.relearn];
+  if(!confirm(`Relearn ${x.k}? Its progress resets and it comes back as a lesson.`)) return;
+  delete state.items[x.id]; save(); render(); $("dlg").close();
+});
 $("batchRange").addEventListener("input", e=>setBatch(+e.target.value));
 // typing: only apply whole numbers in range; tidy up the box when you leave it
 $("batchNum").addEventListener("input", e=>{ const n=parseInt(e.target.value,10); if(n>=BATCH_MIN && n<=BATCH_MAX){ settings.batch=String(n); $("batchRange").value=n; $("batchRange").style.setProperty("--fill", `${(n-BATCH_MIN)/(BATCH_MAX-BATCH_MIN)*100}%`); applySettings(); render(); } });
