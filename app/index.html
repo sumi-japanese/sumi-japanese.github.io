@@ -2443,7 +2443,11 @@ const wordReady = v => kanjiOf(v).every(ch=>state.items[ch]);
 function lessonsAvail(){
   const need=new Set();
   ITEMS.forEach(x=>{ if(x.type==="vocab" && deckOn(x.deck) && !state.items[x.id]) kanjiOf(x).forEach(ch=>{ if(!state.items[ch]) need.add(ch); }); });
-  return ITEMS.filter(x=>!state.items[x.id] && (x.type==="vocab" ? deckOn(x.deck) && wordReady(x) : deckOn(x.deck) || need.has(x.id)));
+  const avail = ITEMS.filter(x=>!state.items[x.id] && (x.type==="vocab" ? deckOn(x.deck) && wordReady(x) : deckOn(x.deck) || need.has(x.id)));
+  // words whose kanji you've just met come first, so 先輩 follows soon after 先 and 輩 instead of after the whole kanji deck
+  const unlocked = avail.filter(x=>x.type==="vocab" && kanjiOf(x).length);
+  const u = new Set(unlocked);
+  return [...unlocked, ...avail.filter(x=>!u.has(x))];
 }
 // Deck on/off only controls NEW lessons. Anything already learned keeps coming back for review.
 const dueNow = () => ITEMS.filter(x=>{const it=state.items[x.id]; return it && it.stage>0 && it.stage<9 && it.next<=Date.now();});
