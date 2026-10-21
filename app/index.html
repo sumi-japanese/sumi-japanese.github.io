@@ -2325,9 +2325,6 @@ const DECKS = [
   {id:"n4",   cat:"kanji", name:"N4 kanji",   tag:"N4 kanji"},
   {id:"n3",   cat:"kanji", name:"N3 kanji",   tag:"N3 kanji"},
   {id:"nx",   cat:"kanji", name:"N2 kanji",   tag:"N2 kanji"},   // id kept from the old "Extra" deck so on/off choices carry over
-  {id:"x5",   cat:"kanji", name:"Word kanji · N5", tag:"Kanji for N5 words"},   // kanji that words use but the JLPT kanji decks don't have
-  {id:"x4",   cat:"kanji", name:"Word kanji · N4", tag:"Kanji for N4 words"},
-  {id:"x3",   cat:"kanji", name:"Word kanji · N3", tag:"Kanji for N3 words"},
   {id:"g5",   cat:"gram",  name:"N5 grammar", tag:"N5 grammar"},
   {id:"g4",   cat:"gram",  name:"N4 grammar", tag:"N4 grammar"},
   {id:"g3",   cat:"gram",  name:"N3 grammar", tag:"N3 grammar"},
@@ -2335,7 +2332,7 @@ const DECKS = [
   {id:"v4",   cat:"vocab", name:"N4 vocabulary", tag:"N4 vocabulary"},
   {id:"v3",   cat:"vocab", name:"N3 vocabulary", tag:"N3 vocabulary"},
 ];
-const OFF_BY_DEFAULT = new Set(["n3","nx","x5","x4","x3","g3","v5","v4","v3"]);   // N3+ and vocabulary wait until you turn them on
+const OFF_BY_DEFAULT = new Set(["n3","nx","g3","v5","v4","v3"]);   // N3+ and vocabulary wait until you turn them on
 const DECK = Object.fromEntries(DECKS.map(d=>[d.id,d]));
 const hira2kata = s => s.replace(/[ぁ-ゖ]/g, ch=>String.fromCharCode(ch.charCodeAt(0)+0x60));
 const kata2hira = s => s.replace(/[ァ-ヶ]/g, ch=>String.fromCharCode(ch.charCodeAt(0)-0x60));
@@ -2360,7 +2357,12 @@ const n5set = new Set(n5.map(x=>x.id));
 ITEMS.push(...parseKanji(N4_RAW,"n4").filter(x=>!n5set.has(x.id)));
 ITEMS.push(...parseKanji(N3_RAW,"n3"));
 ITEMS.push(...parseKanji(X_RAW,"nx"));
-ITEMS.push(...parseKanji(XK5_RAW,"x5"), ...parseKanji(XK4_RAW,"x4"), ...parseKanji(XK3_RAW,"x3"));
+// Kanji that the words use but the JLPT kanji lists don't have go into the deck of the first word level that needs them,
+// after that deck's own kanji
+const deckRank = {n5:0, n4:1, n3:2, nx:3};
+ITEMS.push(...parseKanji(XK5_RAW,"n5"), ...parseKanji(XK4_RAW,"n4"), ...parseKanji(XK3_RAW,"n3"));
+{ const kanji=ITEMS.filter(x=>x.type==="kanji").sort((a,b)=>deckRank[a.deck]-deckRank[b.deck]);
+  const rest=ITEMS.filter(x=>x.type!=="kanji"); ITEMS.length=0; ITEMS.push(...rest.filter(x=>x.type==="kana"||x.type==="radical"), ...kanji, ...rest.filter(x=>x.type!=="kana"&&x.type!=="radical")); }
 ITEMS.push(...parseGrammar(G5_RAW,"g5"), ...parseGrammar(G4_RAW,"g4"), ...parseGrammar(G3_RAW,"g3"));
 // Labels shown on cards. Some original labels gave the meaning away (e.g. "(about to)"), so they show a
 // form hint instead. The item's id stays the same, so saved progress is untouched.
