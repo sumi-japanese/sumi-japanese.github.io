@@ -3175,7 +3175,7 @@ let sb = null, sbUser = null, syncTimer = null, syncBusy = false, syncState = ""
 let syncMeta = {};   // {userId, lastSync, pending, msg} — remembers which account this browser last synced with
 try{ syncMeta = JSON.parse(localStorage.getItem("sumi-sync")||"{}"); }catch(e){}
 const saveSyncMeta = () => { try{ localStorage.setItem("sumi-sync", JSON.stringify(syncMeta)); }catch(e){} };
-const snapshot = () => ({items:state.items, decks:state.decks, log:state.log, v:state.v, updatedAt:state.updatedAt||0});
+const snapshot = () => ({items:state.items, decks:state.decks, log:state.log, level:state.level, v:state.v, updatedAt:state.updatedAt||0});
 const hasProgress = p => !!p && (Object.keys(p.items||{}).length>0 || Object.keys(p.log||{}).length>0);
 const fmtStamp = ms => ms ? new Date(ms).toLocaleString([], {month:"short", day:"numeric", hour:"numeric", minute:"2-digit"}) : "never";
 
@@ -3213,7 +3213,7 @@ function keepBackup(from, progress){
   try{ localStorage.setItem("sumi-backup", JSON.stringify({from, savedAt:progress.updatedAt||0, progress})); }catch(e){}
 }
 function adopt(p){
-  state = {items:p.items||{}, decks:p.decks||null, log:p.log||{}, v:p.v, updatedAt:p.updatedAt||Date.now()};
+  state = {items:p.items||{}, decks:p.decks||null, log:p.log||{}, level:p.level, v:p.v, updatedAt:p.updatedAt||Date.now()};
   normalizeState(); saveLocal();
   if(!Q) render();
 }
