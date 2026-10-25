@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@800&family=Klee+One:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --paper:#FBF3F5; --surface:#FFFFFF; --ink:#3B2630; --muted:#86697A; --line:#EFD9E1;
@@ -15,7 +15,8 @@
   --ok:#3C7F52; --bad:#B23A48; --accent:#E07A9B; --petal:#F5B5C8; --glow:#FCE1EA;
   --s0:#F1E4E9; --s1:#F9D3DE; --s2:#F2A7BE; --s3:#D46F93; --s4:#A84467; --s5:#4E2236;
   --scene:#EBD7DF; --bloom:#F7CCD9; color-scheme:light;
-  --kanji:"Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --kanji:"Klee One", "Hiragino Mincho ProN", "Yu Mincho", serif;   /* textbook-style strokes, easy to read */
+  --brand:"Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", serif;
   --ui:"Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
@@ -171,7 +172,7 @@ header .nav{flex-wrap:wrap;justify-content:flex-end;margin-left:auto}
   header .brand{font-size:24px}
   #acctBtn{max-width:11em}
 }
-.brand{font-family:var(--kanji);font-weight:800;font-size:28px;letter-spacing:.02em;display:flex;align-items:baseline;gap:10px;color:var(--ink);text-decoration:none;border-radius:6px}
+.brand{font-family:var(--brand);font-weight:800;font-size:28px;letter-spacing:.02em;display:flex;align-items:baseline;gap:10px;color:var(--ink);text-decoration:none;border-radius:6px}
 .brand:hover small{text-decoration:underline;text-underline-offset:3px}
 .brand:focus-visible{outline:3px solid var(--accent);outline-offset:4px}
 .brand small{font-family:var(--ui);font-weight:400;font-size:14px;color:var(--muted)}
@@ -260,6 +261,15 @@ mark{background:color-mix(in srgb,var(--accent) 32%,transparent);color:inherit;b
 .btn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .btn:disabled{opacity:.4;cursor:default}
 .lessonface{padding-bottom:16px}
+/* Stroke order: animation + step strip (KanjiVG) */
+.strokes .lbl{display:flex;align-items:center;gap:10px}
+.sorow{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.soanim{width:120px;height:120px;flex:none;border:1px solid var(--line);border-radius:6px;background:var(--paper)}
+.sosteps{display:flex;flex-wrap:wrap;gap:4px;flex:1;min-width:0}
+.sosteps svg{width:44px;height:44px;border:1px solid var(--line);border-radius:4px;background:var(--paper)}
+.strokes path{fill:none;stroke:var(--ink);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.strokes path.ghost{stroke:var(--line)}
+.strokes path.now{stroke:var(--accent);stroke-width:6}
 .summary{text-align:center;padding:36px 16px}
 .summary .k{font-family:var(--kanji);font-size:40px;font-weight:800}
 .summary .lists{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:14px 0 22px}
@@ -327,6 +337,7 @@ try{ const s=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
       <p>Example sentences were written with AI help and haven't been checked by a teacher. If one looks wrong, trust your textbook.</p>
       <p>This site uses the <a href="https://www.edrdg.org/wiki/index.php/JMdict-EDICT_Dictionary_Project" target="_blank" rel="noopener">JMdict</a> and <a href="https://www.edrdg.org/wiki/index.php/KANJIDIC_Project" target="_blank" rel="noopener">KANJIDIC2</a> dictionary files. These files are the property of the <a href="https://www.edrdg.org/" target="_blank" rel="noopener">Electronic Dictionary Research and Development Group</a>, and are used in conformance with the Group's <a href="https://www.edrdg.org/edrdg/licence.html" target="_blank" rel="noopener">licence</a> (CC BY-SA 4.0).</p>
       <p>English synonyms for meaning answers come from <a href="https://en-word.net/" target="_blank" rel="noopener">Open English WordNet</a> (2024 edition), used under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>, filtered and hand-checked for Sumi.</p>
+      <p>Stroke order diagrams come from <a href="https://kanjivg.tagaini.net/" target="_blank" rel="noopener">KanjiVG</a> by Ulrich Apel, used under <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a>.</p>
     </footer>
   </main>
 
@@ -2335,6 +2346,9 @@ const DECKS = [
   {id:"n4",   cat:"kanji", name:"N4 kanji",   tag:"N4 kanji"},
   {id:"n3",   cat:"kanji", name:"N3 kanji",   tag:"N3 kanji"},
   {id:"nx",   cat:"kanji", name:"N2 kanji",   tag:"N2 kanji"},   // id kept from the old "Extra" deck so on/off choices carry over
+  {id:"x5",   cat:"kanji", name:"Word kanji · N5", tag:"Kanji for N5 words"},   // kanji that words use but the JLPT kanji decks don't have
+  {id:"x4",   cat:"kanji", name:"Word kanji · N4", tag:"Kanji for N4 words"},
+  {id:"x3",   cat:"kanji", name:"Word kanji · N3", tag:"Kanji for N3 words"},
   {id:"g5",   cat:"gram",  name:"N5 grammar", tag:"N5 grammar"},
   {id:"g4",   cat:"gram",  name:"N4 grammar", tag:"N4 grammar"},
   {id:"g3",   cat:"gram",  name:"N3 grammar", tag:"N3 grammar"},
@@ -2342,7 +2356,7 @@ const DECKS = [
   {id:"v4",   cat:"vocab", name:"N4 vocabulary", tag:"N4 vocabulary"},
   {id:"v3",   cat:"vocab", name:"N3 vocabulary", tag:"N3 vocabulary"},
 ];
-const OFF_BY_DEFAULT = new Set(["n3","nx","g3","v5","v4","v3"]);   // N3+ and vocabulary wait until you turn them on
+const OFF_BY_DEFAULT = new Set(["n3","nx","x5","x4","x3","g3","v5","v4","v3"]);   // N3+, word kanji and vocabulary wait until you turn them on
 const DECK = Object.fromEntries(DECKS.map(d=>[d.id,d]));
 const hira2kata = s => s.replace(/[ぁ-ゖ]/g, ch=>String.fromCharCode(ch.charCodeAt(0)+0x60));
 const kata2hira = s => s.replace(/[ァ-ヶ]/g, ch=>String.fromCharCode(ch.charCodeAt(0)-0x60));
@@ -2367,12 +2381,8 @@ const n5set = new Set(n5.map(x=>x.id));
 ITEMS.push(...parseKanji(N4_RAW,"n4").filter(x=>!n5set.has(x.id)));
 ITEMS.push(...parseKanji(N3_RAW,"n3"));
 ITEMS.push(...parseKanji(X_RAW,"nx"));
-// Kanji that the words use but the JLPT kanji lists don't have go into the deck of the first word level that needs them,
-// after that deck's own kanji
-const deckRank = {n5:0, n4:1, n3:2, nx:3};
-ITEMS.push(...parseKanji(XK5_RAW,"n5"), ...parseKanji(XK4_RAW,"n4"), ...parseKanji(XK3_RAW,"n3"));
-{ const kanji=ITEMS.filter(x=>x.type==="kanji").sort((a,b)=>deckRank[a.deck]-deckRank[b.deck]);
-  const rest=ITEMS.filter(x=>x.type!=="kanji"); ITEMS.length=0; ITEMS.push(...rest.filter(x=>x.type==="kana"||x.type==="radical"), ...kanji, ...rest.filter(x=>x.type!=="kana"&&x.type!=="radical")); }
+// Kanji that the words use but the JLPT kanji lists don't have: their own decks, off by default
+ITEMS.push(...parseKanji(XK5_RAW,"x5"), ...parseKanji(XK4_RAW,"x4"), ...parseKanji(XK3_RAW,"x3"));
 ITEMS.push(...parseGrammar(G5_RAW,"g5"), ...parseGrammar(G4_RAW,"g4"), ...parseGrammar(G3_RAW,"g3"));
 // Labels shown on cards. Some original labels gave the meaning away (e.g. "(about to)"), so they show a
 // form hint instead. The item's id stays the same, so saved progress is untouched.
@@ -2724,6 +2734,42 @@ function infoHTML(x){
   </dl>${x.ex?exampleHTML(x, x.k):""}${words.length?`<div class="ex"><div class="lbl">Found in these words</div>${words.map(v=>
     `<div class="vrow"><b>${v.k.split(x.k).join(`<mark>${x.k}</mark>`)}</b><span class="vr">${v.reading}${sayBtn(v.reading,v.k)}</span><span>${v.meanings.slice(0,2).join(", ")}</span></div>`).join("")}</div>`:""}`;
 }
+// ---------- Stroke order (KanjiVG, CC BY-SA 3.0), fetched per character only when shown ----------
+const KVG = "https://cdn.jsdelivr.net/gh/KanjiVG/kanjivg@r20260714/kanji/";
+const kvgCache = new Map();   // character → Promise of stroke paths (null if KanjiVG doesn't have it)
+const kvgPaths = ch => {
+  if(!kvgCache.has(ch)) kvgCache.set(ch, fetch(KVG + ch.codePointAt(0).toString(16).padStart(5,"0") + ".svg")
+    .then(r=>r.ok ? r.text() : null)
+    .then(t=>t && [...new DOMParser().parseFromString(t,"image/svg+xml").querySelectorAll("path")].map(p=>p.getAttribute("d")))
+    .catch(()=>{ kvgCache.delete(ch); return null; }));   // offline: try again next time
+  return kvgCache.get(ch);
+};
+const hasStrokes = x => ["kanji","kana","radical"].includes(x.type) && [...x.k].length===1;
+// placeholder; stays hidden until the strokes load, so a missing character or no network just shows nothing
+const strokesHTML = x => hasStrokes(x) ? `<div class="ex strokes" data-ch="${x.k}" hidden><div class="lbl">Stroke order` +
+  `<button type="button" class="linkbtn" data-replay>Replay</button></div><div class="sorow"><svg class="soanim" viewBox="0 0 109 109" aria-hidden="true"></svg>` +
+  `<div class="sosteps" role="img" aria-label="Stroke order of ${x.k}"></div></div></div>` : "";
+function drawStrokes(box, paths){
+  const svg = box.querySelector(".soanim");
+  svg.innerHTML = paths.map(d=>`<path class="ghost" d="${d}"/>`).join("") + paths.map(d=>`<path d="${d}"/>`).join("");
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  [...svg.querySelectorAll("path:not(.ghost)")].forEach((p,i)=>{
+    const len = p.getTotalLength();
+    p.style.strokeDasharray = len; p.style.strokeDashoffset = len;
+    p.animate([{strokeDashoffset:len},{strokeDashoffset:0}], {duration:450, delay:i*520, fill:"forwards", easing:"ease-in-out"});
+  });
+}
+async function loadStrokes(root){
+  const box = root.querySelector(".strokes"); if(!box) return;
+  const paths = await kvgPaths(box.dataset.ch);
+  if(!paths?.length || !box.isConnected) return;   // moved on to another item meanwhile
+  box.querySelector(".sosteps").innerHTML = paths.map((_,n)=>`<svg viewBox="0 0 109 109" aria-hidden="true">${
+    paths.slice(0,n+1).map((d,i)=>`<path${i===n?' class="now"':""} d="${d}"/>`).join("")}</svg>`).join("");
+  box.hidden = false;
+  drawStrokes(box, paths);
+  box.querySelector("[data-replay]").onclick = ()=>drawStrokes(box, paths);
+}
+
 // Fill a card face: kanji/kana big, grammar pattern smaller, cloze shows the gapped sentence
 function fillFace(el, x, t, extra=""){
   el.className = "face" + extra + (x.type==="grammar" ? (t==="cloze" ? " cloze" : " small") : x.type==="vocab" && x.k.length>2 ? " small" : "");
@@ -2797,10 +2843,10 @@ $("decks").addEventListener("click", e=>{
 $("grids").addEventListener("click", e=>{
   const t=e.target.closest(".tile"); if(!t) return; const x=BY[t.dataset.id], it=state.items[x.id];
   fillFace($("dFace"), x, "");
-  $("dInfo").innerHTML = infoHTML(x) + `<p style="color:var(--muted);font-size:14px;margin:12px 0 0">${
+  $("dInfo").innerHTML = infoHTML(x) + strokesHTML(x) + `<p style="color:var(--muted);font-size:14px;margin:12px 0 0">${
     !it ? "Not started yet." : it.stage>=9 ? "Mastered. It won't come back for review." : `${GROUPS[GROUP(it.stage)][0]}${it.skip?" (skipped by your level)":""} · next review ${it.next<=Date.now()?"now":fmtWhen(it.next)}`}</p>${
     it ? `<button class="btn" data-relearn="${x.id}" style="margin-top:12px">Relearn</button>` : ""}`;
-  $("dlg").showModal();
+  $("dlg").showModal(); loadStrokes($("dInfo"));
 });
 $("dClose").onclick=()=>$("dlg").close();
 
@@ -2814,7 +2860,7 @@ function drawLesson(){
   const x=lessonSet[lessonIdx];
   $("lessonCount").textContent=`Lesson ${lessonIdx+1} of ${lessonSet.length}`;
   $("lessonTag").textContent=DECK[x.deck].tag;
-  fillFace($("lessonFace"), x, "", " lessonface"); $("lessonInfo").innerHTML=infoHTML(x);
+  fillFace($("lessonFace"), x, "", " lessonface"); $("lessonInfo").innerHTML=infoHTML(x) + strokesHTML(x); loadStrokes($("lessonInfo"));
   $("prevL").disabled = lessonIdx===0;
   $("nextL").textContent = lessonIdx===lessonSet.length-1 ? "Start quiz" : "Next";
 }
@@ -3107,9 +3153,9 @@ $("setDlg").addEventListener("change", e=>{ if(e.target.type!=="radio") return;
   settings[e.target.name]=e.target.value; applySettings(); render(); });
 
 // ---------- "What you already know": skip lessons up to a level, check them in reviews ----------
-const LEVEL_DECKS = {"0":[], "5":["hira","kata","rad","n5","g5","v5"]};
-LEVEL_DECKS["4"] = [...LEVEL_DECKS["5"], "n4","g4","v4"];
-LEVEL_DECKS["3"] = [...LEVEL_DECKS["4"], "n3","g3","v3"];
+const LEVEL_DECKS = {"0":[], "5":["hira","kata","rad","n5","x5","g5","v5"]};
+LEVEL_DECKS["4"] = [...LEVEL_DECKS["5"], "n4","x4","g4","v4"];
+LEVEL_DECKS["3"] = [...LEVEL_DECKS["4"], "n3","x3","g3","v3"];
 const LEVEL_NAME = {"0":"nothing yet", "5":"N5", "4":"N4", "3":"N3"};
 function setLevel(lv){
   const old = state.level || "0"; if(lv===old) return true;
