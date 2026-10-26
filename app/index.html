@@ -2702,7 +2702,10 @@ if("speechSynthesis" in window){ pickVoice(); speechSynthesis.onvoiceschanged=pi
 function speak(text){
   if(!("speechSynthesis" in window)){ alert("This browser can't play audio."); return; }
   pickVoice();
-  speechSynthesis.cancel();
+  // iOS Safari drops speech that starts right after cancel(), so only cancel when something is actually playing;
+  // resume() un-sticks a synth that the browser left paused (iOS and Chrome both do this after a while)
+  if(speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
+  speechSynthesis.resume();
   const u=new SpeechSynthesisUtterance(text); u.lang="ja-JP"; if(jaVoice) u.voice=jaVoice; u.rate=0.8;
   speechSynthesis.speak(u);
   if(!jaVoice && !speak.warned){ speak.warned=true;
