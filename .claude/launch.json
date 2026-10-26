@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "sumi",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["C:\\Users\\r2_ar\\AppData\\Local\\Temp\\claude\\C--Users-r2-ar-OneDrive-Documents-GitHub-Sumi\\1ee1b5f6-f9c0-4e91-97a5-092b13e4b65a\\scratchpad\\scripts\\serve.js", ".", "8080"],
+      "port": 8080
+    }
+  ]
+}

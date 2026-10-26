@@ -261,6 +261,12 @@ mark{background:color-mix(in srgb,var(--accent) 32%,transparent);color:inherit;b
 .btn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .btn:disabled{opacity:.4;cursor:default}
 .lessonface{padding-bottom:16px}
+/* Optional kanji chips under a word */
+.optks{display:flex;flex-wrap:wrap;gap:8px}
+.optk{display:flex;align-items:baseline;gap:8px;border:1.5px dashed var(--line);background:var(--paper);color:var(--ink);border-radius:6px;padding:6px 12px;font:inherit;font-size:14px;cursor:pointer}
+.optk:hover{border-color:var(--accent)}
+.optk b{font-family:var(--kanji);font-weight:600;font-size:22px}
+.optk span{color:var(--muted)}
 /* Stroke order: animation + step strip (KanjiVG) */
 .strokes .lbl{display:flex;align-items:center;gap:10px}
 .sorow{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
@@ -401,6 +407,12 @@ try{ const s=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
   <div class="face" id="dFace"></div>
   <div class="info" id="dInfo"></div>
   <button class="btn close" id="dClose">Close</button>
+</dialog>
+<!-- optional kanji lesson, opened from a word -->
+<dialog id="optDlg" aria-labelledby="optFace">
+  <div class="face" id="optFace"></div>
+  <div class="info" id="optInfo"></div>
+  <button class="btn close" id="optClose">Close</button>
 </dialog>
 
 <dialog id="setDlg" aria-labelledby="setTitle">
@@ -2346,9 +2358,7 @@ const DECKS = [
   {id:"n4",   cat:"kanji", name:"N4 kanji",   tag:"N4 kanji"},
   {id:"n3",   cat:"kanji", name:"N3 kanji",   tag:"N3 kanji"},
   {id:"nx",   cat:"kanji", name:"N2 kanji",   tag:"N2 kanji"},   // id kept from the old "Extra" deck so on/off choices carry over
-  {id:"x5",   cat:"kanji", name:"Word kanji · N5", tag:"Kanji for N5 words"},   // kanji that words use but the JLPT kanji decks don't have
-  {id:"x4",   cat:"kanji", name:"Word kanji · N4", tag:"Kanji for N4 words"},
-  {id:"x3",   cat:"kanji", name:"Word kanji · N3", tag:"Kanji for N3 words"},
+  {id:"opt",  cat:"kanji", name:"Optional kanji", tag:"Optional kanji"},   // non-jōyō kanji some words are written with
   {id:"g5",   cat:"gram",  name:"N5 grammar", tag:"N5 grammar"},
   {id:"g4",   cat:"gram",  name:"N4 grammar", tag:"N4 grammar"},
   {id:"g3",   cat:"gram",  name:"N3 grammar", tag:"N3 grammar"},
@@ -2356,7 +2366,7 @@ const DECKS = [
   {id:"v4",   cat:"vocab", name:"N4 vocabulary", tag:"N4 vocabulary"},
   {id:"v3",   cat:"vocab", name:"N3 vocabulary", tag:"N3 vocabulary"},
 ];
-const OFF_BY_DEFAULT = new Set(["n3","nx","x5","x4","x3","g3","v5","v4","v3"]);   // N3+, word kanji and vocabulary wait until you turn them on
+const OFF_BY_DEFAULT = new Set(["n3","nx","opt","g3","v5","v4","v3"]);   // N3+, optional kanji and vocabulary wait until you turn them on
 const DECK = Object.fromEntries(DECKS.map(d=>[d.id,d]));
 const hira2kata = s => s.replace(/[ぁ-ゖ]/g, ch=>String.fromCharCode(ch.charCodeAt(0)+0x60));
 const kata2hira = s => s.replace(/[ァ-ヶ]/g, ch=>String.fromCharCode(ch.charCodeAt(0)-0x60));
@@ -2381,8 +2391,16 @@ const n5set = new Set(n5.map(x=>x.id));
 ITEMS.push(...parseKanji(N4_RAW,"n4").filter(x=>!n5set.has(x.id)));
 ITEMS.push(...parseKanji(N3_RAW,"n3"));
 ITEMS.push(...parseKanji(X_RAW,"nx"));
-// Kanji that the words use but the JLPT kanji lists don't have: their own decks, off by default
-ITEMS.push(...parseKanji(XK5_RAW,"x5"), ...parseKanji(XK4_RAW,"x4"), ...parseKanji(XK3_RAW,"x3"));
+// Kanji that the words use but the JLPT kanji lists don't have. Jōyō ones are required: they go into the deck of the
+// first word level that needs them, after that deck's own kanji. The rest (not jōyō, per KANJIDIC2 grades) are optional:
+// words don't wait for them, they open from the word as a pop-up, and the Optional kanji deck teaches them if you want.
+const OPTIONAL_KANJI = new Set([..."其此而碗鞄鹸飴迚綺頁賑粁燐珈琲袴醤釦瓩" + "喧嘩濡斯葡萄髭噌殆屹筈噛掏摸些阿弗馳" +
+  "兎喋或噂嘘屡頬莫紐埃巴只貰嬉也勿掴叩乎謂軈罹叱轢吠繋諺儘咳稍唸偖鋏尤嗽吃"]);
+const wordKanji = (raw, deck) => parseKanji(raw, deck).map(x=>OPTIONAL_KANJI.has(x.k) ? {...x, deck:"opt"} : x);
+const deckRank = {n5:0, n4:1, n3:2, nx:3, opt:4};
+ITEMS.push(...wordKanji(XK5_RAW,"n5"), ...wordKanji(XK4_RAW,"n4"), ...wordKanji(XK3_RAW,"n3"));
+{ const kanji=ITEMS.filter(x=>x.type==="kanji").sort((a,b)=>deckRank[a.deck]-deckRank[b.deck]);
+  const rest=ITEMS.filter(x=>x.type!=="kanji"); ITEMS.length=0; ITEMS.push(...rest.filter(x=>x.type==="kana"||x.type==="radical"), ...kanji, ...rest.filter(x=>x.type!=="kana"&&x.type!=="radical")); }
 ITEMS.push(...parseGrammar(G5_RAW,"g5"), ...parseGrammar(G4_RAW,"g4"), ...parseGrammar(G3_RAW,"g3"));
 // Labels shown on cards. Some original labels gave the meaning away (e.g. "(about to)"), so they show a
 // form hint instead. The item's id stays the same, so saved progress is untouched.
@@ -2458,7 +2476,8 @@ const st = id => state.items[id]?.stage || 0;
 const deckOn = d => !!state.decks[d];
 // Kanji first, then words: a word is taught only after every kanji in it has had its lesson.
 // Kanji a word needs are offered even if their own deck is off, so a word never waits forever.
-const kanjiOf = v => v._kanji ||= [...new Set([...v.k])].filter(ch=>BY[ch]?.type==="kanji");
+// Optional kanji never hold a word back.
+const kanjiOf = v => v._kanji ||= [...new Set([...v.k])].filter(ch=>BY[ch]?.type==="kanji" && BY[ch].deck!=="opt");
 const wordReady = v => kanjiOf(v).every(ch=>state.items[ch]);
 const VRANK = {v5:0, v4:1, v3:2};
 function lessonsAvail(){
@@ -2500,6 +2519,11 @@ function normalizeState(){
   if(!state.level) state.level="0";
   // v2 moved some kanji from N5 to N4 / Extra to match jisho.org; keep reviewing anything already learned
   if(!state.v){ if(state.decks.n5 && Object.keys(state.items).length){ state.decks.n4=true; state.decks.nx=true; } state.v=2; }
+  // v3 made non-jōyō word kanji optional: progress started on them before is set aside (kept, but no more reviews)
+  if(state.v<3){
+    ITEMS.filter(x=>x.deck==="opt" && state.items[x.id]).forEach(x=>{ (state.aside ||= {})[x.id]=state.items[x.id]; delete state.items[x.id]; });
+    state.v=3;
+  }
 }
 
 // ---------- Activity log (for streaks and stats) ----------
@@ -2714,7 +2738,11 @@ function infoHTML(x){
     ? `<p class="srcnote">Grammar point and meaning from <a href="${x.src}" target="_blank" rel="noopener">JLPT Sensei</a>. Explanation and example written for Sumi.</p>` : ""}`;
   if(x.type==="vocab"){
     // every kanji in the word; ones outside Sumi's decks use their KANJIDIC2 meaning
-    const ks=[...new Set([...x.k])].filter(ch=>/[一-鿿]/.test(ch));
+    const all=[...new Set([...x.k])].filter(ch=>/[一-鿿]/.test(ch));
+    const opt=all.filter(ch=>BY[ch]?.deck==="opt"), ks=all.filter(ch=>!opt.includes(ch));
+    // optional kanji: a chip that opens its lesson in a pop-up
+    const optHTML = opt.length ? `<div class="ex"><div class="lbl">Optional kanji · not needed for this word, tap to see its lesson</div><div class="optks">${
+      opt.map(ch=>`<button type="button" class="optk" data-optk="${ch}" aria-label="Open the lesson for ${ch}, ${BY[ch].meanings[0]}"><b>${ch}</b><span>${BY[ch].meanings.slice(0,2).join(", ")}</span></button>`).join("")}</div></div>` : "";
     const kanjiRow = ch => {
       const own = BY[ch]?.type==="kanji" ? BY[ch] : null;
       const mean = own ? own.meanings.slice(0,2).join(", ") : (KANJI_EXTRA[ch]||"").split(", ").slice(0,2).join(", ") || "—";
@@ -2724,7 +2752,7 @@ function infoHTML(x){
     return `<dl>
       <dt>Meaning</dt><dd>${x.meanings.join(", ")}</dd>
       <dt>Reading</dt><dd class="jp">${x.reading}${sayBtn(x.reading,"reading")}</dd>
-    </dl>${ks.length?`<div class="ex"><div class="lbl">Kanji in this word</div>${ks.map(kanjiRow).join("")}</div>`:""}`;
+    </dl>${ks.length?`<div class="ex"><div class="lbl">Kanji in this word</div>${ks.map(kanjiRow).join("")}</div>`:""}${optHTML}`;
   }
   const words=(VOCAB_OF[x.k]||[]).slice(0,6);
   return `<dl>
@@ -2849,6 +2877,16 @@ $("grids").addEventListener("click", e=>{
   $("dlg").showModal(); loadStrokes($("dInfo"));
 });
 $("dClose").onclick=()=>$("dlg").close();
+// optional kanji chip (in any word's details) → its lesson in a pop-up, on top of whatever is open
+document.addEventListener("click", e=>{
+  const b=e.target.closest("[data-optk]"); if(!b) return;
+  const x=BY[b.dataset.optk];
+  fillFace($("optFace"), x, "");
+  $("optInfo").innerHTML = `<p class="note" style="margin:0 0 12px">Optional: this kanji isn't on the jōyō list of everyday kanji, so Sumi doesn't require it. Turn on the Optional kanji deck to study it with reviews.</p>` +
+    infoHTML(x) + strokesHTML(x);
+  $("optDlg").showModal(); loadStrokes($("optInfo"));
+});
+$("optClose").onclick=()=>$("optDlg").close();
 
 // ---------- Lessons ----------
 let lessonSet=[], lessonIdx=0;
@@ -3153,9 +3191,9 @@ $("setDlg").addEventListener("change", e=>{ if(e.target.type!=="radio") return;
   settings[e.target.name]=e.target.value; applySettings(); render(); });
 
 // ---------- "What you already know": skip lessons up to a level, check them in reviews ----------
-const LEVEL_DECKS = {"0":[], "5":["hira","kata","rad","n5","x5","g5","v5"]};
-LEVEL_DECKS["4"] = [...LEVEL_DECKS["5"], "n4","x4","g4","v4"];
-LEVEL_DECKS["3"] = [...LEVEL_DECKS["4"], "n3","x3","g3","v3"];
+const LEVEL_DECKS = {"0":[], "5":["hira","kata","rad","n5","g5","v5"]};
+LEVEL_DECKS["4"] = [...LEVEL_DECKS["5"], "n4","g4","v4"];
+LEVEL_DECKS["3"] = [...LEVEL_DECKS["4"], "n3","g3","v3"];
 const LEVEL_NAME = {"0":"nothing yet", "5":"N5", "4":"N4", "3":"N3"};
 function setLevel(lv){
   const old = state.level || "0"; if(lv===old) return true;
@@ -3221,7 +3259,7 @@ let sb = null, sbUser = null, syncTimer = null, syncBusy = false, syncState = ""
 let syncMeta = {};   // {userId, lastSync, pending, msg} — remembers which account this browser last synced with
 try{ syncMeta = JSON.parse(localStorage.getItem("sumi-sync")||"{}"); }catch(e){}
 const saveSyncMeta = () => { try{ localStorage.setItem("sumi-sync", JSON.stringify(syncMeta)); }catch(e){} };
-const snapshot = () => ({items:state.items, decks:state.decks, log:state.log, level:state.level, v:state.v, updatedAt:state.updatedAt||0});
+const snapshot = () => ({items:state.items, decks:state.decks, log:state.log, level:state.level, aside:state.aside, v:state.v, updatedAt:state.updatedAt||0});
 const hasProgress = p => !!p && (Object.keys(p.items||{}).length>0 || Object.keys(p.log||{}).length>0);
 const fmtStamp = ms => ms ? new Date(ms).toLocaleString([], {month:"short", day:"numeric", hour:"numeric", minute:"2-digit"}) : "never";
 
@@ -3259,7 +3297,7 @@ function keepBackup(from, progress){
   try{ localStorage.setItem("sumi-backup", JSON.stringify({from, savedAt:progress.updatedAt||0, progress})); }catch(e){}
 }
 function adopt(p){
-  state = {items:p.items||{}, decks:p.decks||null, log:p.log||{}, level:p.level, v:p.v, updatedAt:p.updatedAt||Date.now()};
+  state = {items:p.items||{}, decks:p.decks||null, log:p.log||{}, level:p.level, aside:p.aside, v:p.v, updatedAt:p.updatedAt||Date.now()};
   normalizeState(); saveLocal();
   if(!Q) render();
 }
