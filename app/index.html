@@ -261,6 +261,14 @@ mark{background:color-mix(in srgb,var(--accent) 32%,transparent);color:inherit;b
 .btn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .btn:disabled{opacity:.4;cursor:default}
 .lessonface{padding-bottom:16px}
+/* Your own meanings */
+.mychips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.mychip{display:inline-flex;align-items:center;gap:2px;background:var(--glow);border-radius:999px;padding:3px 4px 3px 12px;font-size:15px}
+.mychip button{border:0;background:none;color:var(--muted);font-size:18px;line-height:1;padding:2px 8px;border-radius:999px;cursor:pointer}
+.myadd{display:flex;gap:8px}
+.myadd input{flex:1;min-width:0;font:inherit;font-size:16px;padding:8px 12px;border-radius:6px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
+.myadd .btn{padding:8px 16px}
+#qMine{margin-left:6px;margin-top:4px}
 /* Optional kanji chips under a word */
 .optks{display:flex;flex-wrap:wrap;gap:8px}
 .optk{display:flex;align-items:baseline;gap:8px;border:1.5px dashed var(--line);background:var(--paper);color:var(--ink);border-radius:6px;padding:6px 12px;font:inherit;font-size:14px;cursor:pointer}
@@ -490,8 +498,8 @@ const RAD_RAW = `一|one|一 二 三 下|A single flat stroke, like one finger l
 人|person|人 会 今|Two legs mid-stride. It's a person walking toward you.
 亻|person|休 体 何 作 使|When a person squeezes onto the left side of a kanji they stand sideways and thin. Still a person.
 儿|legs|先 元 兄 見|Just the legs of a person, knees bent, running off the bottom of the kanji.
-入|enter|入|Like 人, but the left stroke ducks in first, like someone ducking to enter a low doorway.
-八|eight,divide|八 六 分 公|Two strokes spreading apart like a road that divides. It widens like good luck in Japan: eight.
+入|enter|入|人 flipped: here the right stroke is the long one, and the short left stroke leans into it, like ducking through a low doorway.
+八|eight,divide|八 六 分 公|Two strokes splitting apart: divide. Eight is the number that splits evenly again and again. In 分, a knife 刀 divides it.
 冖|cover,crown|写|A flat sheet with the sides draped down, like a cloth thrown over something to cover it.
 冫|ice|冬|Two little drops frozen solid on the left. Ice.
 几|table,desk|風|A small low table standing on two legs.
@@ -499,7 +507,7 @@ const RAD_RAW = `一|one|一 二 三 下|A single flat stroke, like one finger l
 刂|knife,sword|前 別|The knife stood up on the right side of a kanji: two upright blades ready to cut.
 力|power,strength|力 男 動 勉|A flexed arm showing off its bicep. Power!
 匕|spoon|北|A spoon lying on its side with the handle pointing left.
-十|ten,cross|十 千 午 南|Two lines crossing like a plus sign. Count your ten fingers crossed together.
+十|ten,cross|十 千 午 南|Two lines crossing like a plus sign. This cross is how Japanese writes ten.
 又|again,right hand|友|A hand reaching out to grab something, again and again.
 口|mouth|口 右 名 品 問|A square mouth wide open, saying "ah".
 囗|enclosure,box|国 四 図 回|A big box that encloses things inside it, like a fence around a whole country (国).
@@ -529,7 +537,7 @@ const RAD_RAW = `一|one|一 二 三 下|A single flat stroke, like one finger l
 攵|strike,action|教|A hand holding a stick, ready to strike. Action!
 文|writing,pattern|文|A person with a crossed pattern tattooed on their chest. Patterns, writing.
 斤|axe|新 近|An axe: the blade on the left, the long handle on the right.
-方|direction,square|方 旅 族|A person pointing their arm out: "Go that direction!"
+方|direction,way|方 旅 族|A person pointing their arm out: "Go that direction!"
 日|sun,day|日 明 時 早 曜|A window with the sun shining through it. Sun, day.
 月|moon,month|月 朝 明 服|A crescent moon with two thin clouds drifting across it. Moon, month.
 木|tree,wood|木 本 林 森 校|A tree: trunk in the middle, branches up, roots down.
@@ -543,7 +551,7 @@ const RAD_RAW = `一|one|一 二 三 下|A single flat stroke, like one finger l
 灬|fire|黒 無|Four little flames burning under the kanji, like a stove. Fire.
 父|father|父|Father with his arms crossed under a big mustache.
 牛|cow|牛 物 特|A cow's head seen from the front, with one horn sticking up.
-王|king,jewel|理|Three lines (heaven, people, earth) joined by one stroke. Only a king connects them all. Add a dot and it becomes 玉, jewel.
+王|king,jewel|理|Three lines (heaven, people, earth) joined by one stroke. Only a king connects them all. On the left of a kanji (理, 現, 球) it's 玉 "jewel" without its dot.
 生|life,birth|生|A plant sprouting up out of the earth (土). Life, birth.
 田|rice field|田 男 思 町 画|A rice field split into four paddies.
 疒|sickness|病|A sick bed with drops of sweat beside it. Sickness.
@@ -561,7 +569,7 @@ const RAD_RAW = `一|one|一 二 三 下|A single flat stroke, like one finger l
 肉|meat|肉|A slab of meat with the fat lines showing inside.
 自|self,nose|自|In Japan people point to their own nose to say "me". Self, nose.
 艹|grass,plant|花 茶 英|Two tufts of grass poking up on top. Grass, plants.
-虫|insect,bug|風|A bug with a big head and a little antenna on its tail.
+虫|insect,bug|風|A bug: a big head (口) on a long body, with a little leg sticking out at the bottom right.
 見|see|見 親|An eye (目) on running legs (儿), out and about to see things.
 言|say,speech|言 話 語 読 試|Lines of words coming out of a mouth (口). Speech.
 貝|shell,money|買 貸 質 員|A cowrie shell. People used shells as money, so it shows up in buying and selling.
@@ -572,8 +580,8 @@ const RAD_RAW = `一|one|一 二 三 下|A single flat stroke, like one finger l
 里|village|野|A rice field (田) on the ground (土). Where there are fields, there's a village.
 金|gold,metal|金 銀|Nuggets of gold buried in the earth under a roof. Gold, metal.
 門|gate|開 聞 間|Two swinging doors side by side. A gate.
-阝|hill,village|院 部|A big bumpy shape on the side, like a hill with a village on it.
-隹|old bird|集 曜|A bird with its feathers drawn as rows of lines. An old bird.
+阝|hill,village|院 部|Two look-alikes: on the left of a kanji (院, 階) it's a hill; on the right (部, 都) it's a village.
+隹|bird,old bird|集 曜|A bird drawn with rows of feathers. 集 (gather) is birds 隹 flocking onto a tree 木.
 雨|rain|雨 電|Raindrops falling from a cloud under the sky.
 青|blue|青|A young plant (生) growing under the moon (月). Fresh blue-green.
 頁|head,page|題 頭 顔|A head (目-like face) on top of a body on legs. Also the page you turn with your head down reading.
@@ -1680,7 +1688,7 @@ const XK5_RAW = `其|that||それ,その|||
 鹸|saltiness|ケン||||
 飴|rice jelly,candy||あめ|||
 暇|spare time,rest,leisure,time||ひま|||
-隣|neighboring||とな.る,となり|||
+隣|neighboring,neighbor,next door,next to||とな.る,となり|||
 荷|baggage,shoulder-pole load,bear (a burden),shoulder (a gun)||に|||
 乳|milk,breasts|ニュウ||||
 甘|sweet,coax,pamper,be content||あま.い,あま.える,あま.やかす|||
@@ -2590,7 +2598,12 @@ const isOpposite = (a,t) => a!==t && (NEG_PREFIX.some(p=>a===p+t || t===p+a) || 
 // Each item's accepted meanings: what's shown, other dictionary senses (alt), a "start to" → "start" form,
 // and a small hand-written synonym list. Cached per item.
 const ITEM_SYNONYMS = {};   // id -> extra accepted answers, e.g. {"v:…": ["…"]}
+// Meanings you added yourself (synced with your account): accepted as typed, with the usual typo tolerance
+const myMeanings = id => state.syn?.[id] || [];
 function meaningForms(item){
+  return [...baseForms(item), ...myMeanings(item.id).map(m=>({t:normM(m), verb:false, shown:false}))];
+}
+function baseForms(item){
   if(item._forms) return item._forms;
   const forms=[];
   const add = (m, shown) => {
@@ -2737,7 +2750,32 @@ function exampleHTML(x, hl){
     <div class="jp">${hl ? x.ex.jp.split(hl).join(`<mark>${hl}</mark>`) : x.ex.jp}</div>
     <div class="rd">${x.ex.rd}</div><div class="en">${x.ex.en}</div></div>`;
 }
-function infoHTML(x){
+// ---------- Your own meanings: add / remove from any item's details ----------
+const escHTML = s => s.replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const myMeaningsHTML = x => !x.meanings ? "" : `<div class="ex mymean" data-id="${escHTML(x.id)}"><div class="lbl">Your meanings</div>
+  <div class="mychips">${myMeanings(x.id).map((m,i)=>`<span class="mychip">${escHTML(m)}<button type="button" data-unmean="${i}" aria-label="Remove ${escHTML(m)}">×</button></span>`).join("")
+    || `<span class="note">Add a meaning you'd like to count as correct, like a synonym you use.</span>`}</div>
+  <div class="myadd"><input type="text" placeholder="Add a meaning" aria-label="Add your own meaning" autocomplete="off" autocapitalize="off" spellcheck="false"><button type="button" class="btn" data-addmean>Add</button></div></div>`;
+function addMyMeaning(id, m){
+  m = m.trim(); if(!normM(m)) return false;
+  const list = (state.syn ||= {})[id] ||= [];
+  if(!list.some(x=>normM(x)===normM(m))) list.push(m);
+  save(); return true;
+}
+function refreshMyMeanings(box){ box.outerHTML = myMeaningsHTML(BY[box.dataset.id]); }
+document.addEventListener("click", e=>{
+  const box=e.target.closest(".mymean"); if(!box) return;
+  const id=box.dataset.id;
+  if(e.target.closest("[data-addmean]")){ const i=box.querySelector("input"); if(addMyMeaning(id, i.value)) refreshMyMeanings(box); else i.focus(); }
+  const rm=e.target.closest("[data-unmean]");
+  if(rm){ state.syn[id].splice(+rm.dataset.unmean,1); if(!state.syn[id].length) delete state.syn[id]; save(); refreshMyMeanings(box); }
+});
+document.addEventListener("keydown", e=>{
+  if(e.key!=="Enter" || !e.target.closest(".myadd input")) return;
+  e.preventDefault(); e.stopPropagation(); e.target.closest(".mymean").querySelector("[data-addmean]").click();
+});
+function infoHTML(x){ return infoBody(x) + myMeaningsHTML(x); }
+function infoBody(x){
   if(x.type==="kana") return `<dl>
     <dt>Romaji</dt><dd>${x.romaji.join(" / ")}${sayBtn(x.k,"sound")}</dd>
     <dt>${x.deck==="hira"?"Katakana":"Hiragana"}</dt><dd class="jp">${x.other}</dd>
@@ -3037,11 +3075,17 @@ $("qForm").addEventListener("submit", e=>{
       : t==="cloze" ? x.ex.jp : t==="vread" ? `${x.k}（${x.reading}）` : x.romaji.join(" / "));
     if(tr.ok.size===tr.need) completeItem(x.id);
   } else {
+    const wasWrong=tr.wrong;
     inp.classList.add("bad"); tr.wrong=true;
     $("qMsg").textContent="Not quite. It will come back later in this session.";
     const pos=Math.min(Q.queue.length, 3+Math.floor(Math.random()*4));
     Q.queue.splice(pos,0,{...Q.cur});
-    $("qInfo").innerHTML=infoHTML(x); $("qInfo").classList.remove("hidden");
+    // a meaning you consider right: add it as your own and count this answer as correct
+    if(t==="meaning"||t==="gmean"){
+      Q.undo={id:x.id, t, pos, wasWrong, ans};
+      $("qMsg").insertAdjacentHTML("beforeend", ` <button type="button" class="linkbtn" id="qMine">My answer was right: add “${escHTML(ans)}”</button>`);
+    }
+    $("qInfo").innerHTML=infoHTML(x)+strokesHTML(x); $("qInfo").classList.remove("hidden"); loadStrokes($("qInfo"));
   }
   save();
   $("showInfo").disabled=false;
@@ -3061,7 +3105,20 @@ $("listen").onclick=()=>{
   }
   speak(text); $("qInput").focus();
 };
-$("showInfo").onclick=()=>{ $("qInfo").innerHTML=infoHTML(BY[Q.cur.id]); $("qInfo").classList.toggle("hidden"); $("qInput").focus(); };
+$("showInfo").onclick=()=>{ const x=BY[Q.cur.id]; $("qInfo").innerHTML=infoHTML(x)+strokesHTML(x); $("qInfo").classList.toggle("hidden"); loadStrokes($("qInfo")); $("qInput").focus(); };
+// "My answer was right": undo the miss, keep the answer as one of your meanings
+$("qMsg").addEventListener("click", e=>{
+  if(!e.target.closest("#qMine") || !Q?.undo || Q.undo.id!==Q.cur?.id) return;
+  const {id, t, pos, wasWrong, ans}=Q.undo, x=BY[id], tr=Q.track[id]; Q.undo=null;
+  addMyMeaning(id, ans);
+  Q.queue.splice(pos,1); tr.wrong=wasWrong;
+  Q.right++; logDay().r++; tr.ok.add(t);
+  const inp=$("qInput"); inp.classList.remove("bad"); inp.classList.add("ok"); setMascot($("qMascot"), "cheer");
+  $("qMsg").textContent=`Added “${ans}” to your meanings and counted it as correct.`;
+  if(tr.ok.size===tr.need) completeItem(id);
+  save(); $("qInfo").innerHTML=infoHTML(x)+strokesHTML(x); loadStrokes($("qInfo"));
+  $("qAcc").textContent = `${Math.round(Q.right/Q.asked*100)}% correct`; $("qLeft").textContent = `${Q.done.length} of ${Q.total} done`;
+});
 
 function completeItem(id){
   const tr=Q.track[id], now=Date.now();
@@ -3274,7 +3331,7 @@ let sb = null, sbUser = null, syncTimer = null, syncBusy = false, syncState = ""
 let syncMeta = {};   // {userId, lastSync, pending, msg} — remembers which account this browser last synced with
 try{ syncMeta = JSON.parse(localStorage.getItem("sumi-sync")||"{}"); }catch(e){}
 const saveSyncMeta = () => { try{ localStorage.setItem("sumi-sync", JSON.stringify(syncMeta)); }catch(e){} };
-const snapshot = () => ({items:state.items, decks:state.decks, log:state.log, level:state.level, aside:state.aside, v:state.v, updatedAt:state.updatedAt||0});
+const snapshot = () => ({items:state.items, decks:state.decks, log:state.log, level:state.level, aside:state.aside, syn:state.syn, v:state.v, updatedAt:state.updatedAt||0});
 const hasProgress = p => !!p && (Object.keys(p.items||{}).length>0 || Object.keys(p.log||{}).length>0);
 const fmtStamp = ms => ms ? new Date(ms).toLocaleString([], {month:"short", day:"numeric", hour:"numeric", minute:"2-digit"}) : "never";
 
@@ -3312,7 +3369,7 @@ function keepBackup(from, progress){
   try{ localStorage.setItem("sumi-backup", JSON.stringify({from, savedAt:progress.updatedAt||0, progress})); }catch(e){}
 }
 function adopt(p){
-  state = {items:p.items||{}, decks:p.decks||null, log:p.log||{}, level:p.level, aside:p.aside, v:p.v, updatedAt:p.updatedAt||Date.now()};
+  state = {items:p.items||{}, decks:p.decks||null, log:p.log||{}, level:p.level, aside:p.aside, syn:p.syn, v:p.v, updatedAt:p.updatedAt||Date.now()};
   normalizeState(); saveLocal();
   if(!Q) render();
 }
