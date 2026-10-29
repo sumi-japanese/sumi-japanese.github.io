@@ -2692,7 +2692,9 @@ function show(view){
 }
 
 // ---------- Audio (uses the device's built-in Japanese voice) ----------
-let jaVoice=null;
+let jaVoice=null, lastUtterance=null;
+// iPhone/iPad (iPadOS reports itself as a Mac with touch)
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
 function pickVoice(){
   if(!("speechSynthesis" in window)) return;
   const vs=speechSynthesis.getVoices().filter(v=>/^ja/i.test(v.lang));
@@ -2706,9 +2708,19 @@ function speak(text){
   // resume() un-sticks a synth that the browser left paused (iOS and Chrome both do this after a while)
   if(speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
   speechSynthesis.resume();
-  const u=new SpeechSynthesisUtterance(text); u.lang="ja-JP"; if(jaVoice) u.voice=jaVoice; u.rate=0.8;
+  const u=new SpeechSynthesisUtterance(text); u.lang="ja-JP"; u.rate=0.8;
+  // iOS lists voices that aren't downloaded yet (they play nothing), so let it pick its own Japanese voice from the language
+  if(jaVoice && !IS_IOS) u.voice=jaVoice;
+  // keep a reference: Safari and Chrome can garbage-collect an utterance before it plays
+  lastUtterance = u;
+  let started=false; u.onstart=()=>{ started=true; };
   speechSynthesis.speak(u);
-  if(!jaVoice && !speak.warned){ speak.warned=true;
+  // no sound after a moment: usually no Japanese voice on the device. iPhones in silent mode still "play" without sound,
+  // so there the tip shows once per visit either way.
+  setTimeout(()=>{ if((!started || IS_IOS) && lastUtterance===u && !speak.hinted){ speak.hinted=true;
+    toast(IS_IOS ? "No sound? Turn off silent mode and turn up the volume. If it's still quiet, add a Japanese voice in Settings → Accessibility → Spoken Content → Voices → Japanese."
+      : "No sound? Check your volume, and that your device has a Japanese voice installed."); } }, 2500);
+  if(!IS_IOS && !jaVoice && !speak.warned){ speak.warned=true;
     alert("No Japanese voice was found on this device, so audio may not play or may sound wrong. On Windows, add Japanese under Settings → Time & language → Speech."); }
 }
 const sayText = {
