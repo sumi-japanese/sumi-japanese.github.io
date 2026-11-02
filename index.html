@@ -14,7 +14,10 @@
   --indigo:#B0466C; --indigo-ink:#FFF5F8; --on-band-muted:#FBE0EA; --accent:#D4628A;
   --ok:#3C7F52; --bad:#B23A48; --ok-text:#2E6B42; --bad-text:#9C2F3C;
   --s2:#F2A7BE; --s4:#A84467; --petal:#F5B5C8; --glow:#FCE1EA; color-scheme:light;
+  --jp:"Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", sans-serif;   /* Japanese samples: follows the app's Font setting */
 }
+:root[data-font="textbook"]{--jp:"Klee One", "Yu Mincho", serif}
+:root[data-font="brush"]{--jp:"Shippori Mincho B1", "Yu Mincho", serif}
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --paper:#1C1418; --surface:#271C22; --ink:#F5E8ED; --text2:#D9C4CD; --muted:#BFA3B0; --line:#3D2C35; --line2:#4A3540;
@@ -62,10 +65,11 @@ input:focus-visible,button:focus-visible,a:focus-visible,summary:focus-visible{o
 @media (max-width:700px){.hero-mascot{width:104px;right:12px;bottom:-4px}}
 </style>
 <script>
-// use the same Theme and Petals choices as the app's Settings
+// use the same Theme, Petals and Font choices as the app's Settings
 try{ var st=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
   if(st.theme==="light"||st.theme==="dark") document.documentElement.dataset.theme=st.theme;
-  if(st.petals==="on"||st.petals==="off") document.documentElement.dataset.petals=st.petals; }catch(e){}
+  if(st.petals==="on"||st.petals==="off") document.documentElement.dataset.petals=st.petals;
+  if(st.font==="textbook"||st.font==="brush") document.documentElement.dataset.font=st.font; }catch(e){}
 </script>
 </head>
 <body>
@@ -98,10 +102,10 @@ try{ var st=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
     </div>
     <div style="flex: 1 1 380px; min-width: 0; display: flex; justify-content: center">
       <div style="width: 100%; max-width: 420px; border: 1.5px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface)">
-        <div style="background: var(--indigo); color: var(--indigo-ink); display: grid; place-items: center; padding: 40px 20px 34px; font-family: 'Klee One', 'Yu Mincho', serif; font-weight: 600; font-size: 170px; line-height: 1">覚</div>
+        <div style="background: var(--indigo); color: var(--indigo-ink); display: grid; place-items: center; padding: 40px 20px 34px; font-family: var(--jp); font-weight: 600; font-size: 170px; line-height: 1">覚</div>
         <div style="padding: 12px 18px; text-align: center; font-weight: 700; font-size: 15px; border-bottom: 1.5px solid var(--line)">Reading</div>
         <div style="padding: 18px; display: flex; flex-direction: column; gap: 6px; align-items: center">
-          <span style="font-family: 'Klee One', 'Yu Mincho', serif; font-size: 30px; font-weight: 600">おぼえる</span>
+          <span style="font-family: var(--jp); font-size: 30px; font-weight: 600">おぼえる</span>
           <span style="font-size: 14px; color: var(--muted)">remember · next review in 2 weeks</span>
         </div>
       </div>
@@ -117,17 +121,17 @@ try{ var st=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px; margin-bottom: 64px">
         <div style="display: flex; flex-direction: column; gap: 8px">
-          <span style="font-family: 'Klee One', 'Yu Mincho', serif; font-size: 40px; font-weight: 600; color: var(--accent); line-height: 1">一</span>
+          <span style="font-family: var(--jp); font-size: 40px; font-weight: 600; color: var(--accent); line-height: 1">一</span>
           <h3 style="margin: 0; font-size: 20px">Learn a few new items</h3>
           <p style="margin: 0; color: var(--text2)">Pick 3 to 20 per lesson. Each one comes with its meaning and readings, then a short quiz.</p>
         </div>
         <div style="display: flex; flex-direction: column; gap: 8px">
-          <span style="font-family: 'Klee One', 'Yu Mincho', serif; font-size: 40px; font-weight: 600; color: var(--accent); line-height: 1">二</span>
+          <span style="font-family: var(--jp); font-size: 40px; font-weight: 600; color: var(--accent); line-height: 1">二</span>
           <h3 style="margin: 0; font-size: 20px">Review when it's due</h3>
           <p style="margin: 0; color: var(--text2)">Type the English meaning, then the reading. Romaji turns into hiragana as you type.</p>
         </div>
         <div style="display: flex; flex-direction: column; gap: 8px">
-          <span style="font-family: 'Klee One', 'Yu Mincho', serif; font-size: 40px; font-weight: 600; color: var(--accent); line-height: 1">三</span>
+          <span style="font-family: var(--jp); font-size: 40px; font-weight: 600; color: var(--accent); line-height: 1">三</span>
           <h3 style="margin: 0; font-size: 20px">Watch the gaps grow</h3>
           <p style="margin: 0; color: var(--text2)">Hours become days, then weeks. After about four months an item is mastered.</p>
         </div>
@@ -155,7 +159,7 @@ try{ var st=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
       <p style="margin: 0; color: var(--text2); max-width: 28em">This is what a review looks like. Type what the kanji means in English and press Check. Hint: it's tall, and you might climb it.</p>
     </div>
     <div style="flex: 1 1 420px; min-width: 0; max-width: 480px; border: 1.5px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface)">
-      <div style="display: grid; place-items: center; padding: 34px 20px 28px; font-family: 'Klee One', 'Yu Mincho', serif; font-weight: 600; font-size: 140px; line-height: 1">山</div>
+      <div style="display: grid; place-items: center; padding: 34px 20px 28px; font-family: var(--jp); font-weight: 600; font-size: 140px; line-height: 1">山</div>
       <div style="padding: 11px 18px; text-align: center; font-weight: 700; font-size: 15px; border-top: 1.5px solid var(--line); border-bottom: 1.5px solid var(--line)">Meaning</div>
       <div style="padding: 16px; display: flex; gap: 10px">
         <label for="demo-answer" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Meaning of the kanji</label>
@@ -220,7 +224,7 @@ try{ var st=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
 
   <!-- Final CTA -->
   <section style="max-width: 1200px; margin: 0 auto; padding: 24px 24px 104px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 22px">
-    <span style="font-family: 'Klee One', 'Yu Mincho', serif; font-weight: 600; font-size: 120px; line-height: 1">始</span>
+    <span style="font-family: var(--jp); font-weight: 600; font-size: 120px; line-height: 1">始</span>
     <h2 style="margin: 0; font-family: 'Shippori Mincho B1', 'Yu Mincho', serif; font-weight: 800; font-size: clamp(30px, 4vw, 44px); line-height: 1.15">Your first lesson takes just a few minutes.</h2>
     <a href="app/" style="text-decoration: none; background: var(--indigo); color: var(--indigo-ink); padding: 16px 30px; border-radius: 6px; font-weight: 700; font-size: 18px">Start learning</a>
   </section>

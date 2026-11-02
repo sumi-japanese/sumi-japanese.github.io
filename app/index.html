@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@800&family=Klee+One:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&family=Klee+One:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --paper:#FBF3F5; --surface:#FFFFFF; --ink:#3B2630; --muted:#86697A; --line:#EFD9E1;
@@ -15,7 +15,7 @@
   --ok:#3C7F52; --bad:#B23A48; --accent:#E07A9B; --petal:#F5B5C8; --glow:#FCE1EA;
   --s0:#F1E4E9; --s1:#F9D3DE; --s2:#F2A7BE; --s3:#D46F93; --s4:#A84467; --s5:#4E2236;
   --scene:#EBD7DF; --bloom:#F7CCD9; color-scheme:light;
-  --kanji:"Klee One", "Hiragino Mincho ProN", "Yu Mincho", serif;   /* textbook-style strokes, easy to read */
+  --kanji:"Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", sans-serif;   /* Japanese text; Settings → Font can switch it */
   --brand:"Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", serif;
   --ui:"Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
   box-sizing:border-box;
@@ -261,6 +261,10 @@ mark{background:color-mix(in srgb,var(--accent) 32%,transparent);color:inherit;b
 .btn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .btn:disabled{opacity:.4;cursor:default}
 .lessonface{padding-bottom:16px}
+/* Settings → Font (Clean is the default in :root) */
+:root[data-font="textbook"]{--kanji:"Klee One", "Hiragino Mincho ProN", "Yu Mincho", serif}
+:root[data-font="brush"]{--kanji:"Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", serif}
+.fontdemo{font-size:18px;margin-right:6px;line-height:1}
 /* Your own meanings */
 .mychips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
 .mychip{display:inline-flex;align-items:center;gap:2px;background:var(--glow);border-radius:999px;padding:3px 4px 3px 12px;font-size:15px}
@@ -308,7 +312,8 @@ h4{font-size:13px;margin:14px 0 8px;font-weight:500;color:var(--muted)}
 // apply saved theme before the page paints
 try{ const s=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
   if(s.theme==="light"||s.theme==="dark") document.documentElement.dataset.theme=s.theme;
-  if(s.petals==="on"||s.petals==="off") document.documentElement.dataset.petals=s.petals; }catch(e){}
+  if(s.petals==="on"||s.petals==="off") document.documentElement.dataset.petals=s.petals;
+  if(s.font==="textbook"||s.font==="brush") document.documentElement.dataset.font=s.font; }catch(e){}
 </script>
 <!-- Optional account sync. Pinned version; loads async so guest mode never waits on it. -->
 <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
@@ -445,6 +450,15 @@ try{ const s=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
         <label><input type="radio" name="theme" value="dark">Dark</label>
       </div>
       <p class="note">Auto follows your device's light or dark mode.</p>
+    </fieldset>
+    <fieldset>
+      <legend>Font</legend>
+      <div class="seg">
+        <label><input type="radio" name="font" value="clean"><span class="fontdemo" style="font-family:'Zen Kaku Gothic New',sans-serif">書</span>Clean</label>
+        <label><input type="radio" name="font" value="textbook"><span class="fontdemo" style="font-family:'Klee One',serif">書</span>Textbook</label>
+        <label><input type="radio" name="font" value="brush"><span class="fontdemo" style="font-family:'Shippori Mincho B1',serif">書</span>Brush</label>
+      </div>
+      <p class="note">For all Japanese text. Clean is easiest to read, Textbook looks like handwriting, and Brush is the classic printed style.</p>
     </fieldset>
     <fieldset>
       <legend>New items per lesson</legend>
@@ -3233,7 +3247,7 @@ document.addEventListener("focusin", e=>{ const t=e.target.closest("[data-tip]")
 window.addEventListener("scroll", ()=>{ tip.hidden=true; }, {passive:true});
 
 // ---------- Settings ----------
-let settings = {theme:"auto", petals:"auto", batch:"5", reviewCap:"50"};
+let settings = {theme:"auto", petals:"auto", font:"clean", batch:"5", reviewCap:"50"};
 const reviewCap = () => settings.reviewCap==="all" ? Infinity : (parseInt(settings.reviewCap,10) || 50);
 const BATCH_MIN = 1, BATCH_MAX = 50;
 const clampBatch = n => Math.min(BATCH_MAX, Math.max(BATCH_MIN, Math.round(n)));
@@ -3243,6 +3257,7 @@ function applySettings(){
   const r=document.documentElement;
   if(settings.theme==="auto") delete r.dataset.theme; else r.dataset.theme=settings.theme;
   if(settings.petals==="auto") delete r.dataset.petals; else r.dataset.petals=settings.petals;
+  if(settings.font==="clean") delete r.dataset.font; else r.dataset.font=settings.font;
   try{ localStorage.setItem("sumi-settings", JSON.stringify(settings)); }catch(e){}
 }
 function showBatch(n){
