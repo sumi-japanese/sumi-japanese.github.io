@@ -7,7 +7,8 @@
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&family=Klee+One:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<!-- Japanese fonts for Settings → Font; the browser only downloads the one in use -->
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;600;800&family=Klee+One:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=Zen+Maru+Gothic:wght@400;500;700;900&family=Zen+Kurenaido&display=swap" rel="stylesheet">
 <style>
 :root{
   --paper:#FBF3F5; --surface:#FFFFFF; --ink:#3B2630; --muted:#86697A; --line:#EFD9E1;
@@ -16,6 +17,7 @@
   --s0:#F1E4E9; --s1:#F9D3DE; --s2:#F2A7BE; --s3:#D46F93; --s4:#A84467; --s5:#4E2236;
   --scene:#EBD7DF; --bloom:#F7CCD9; color-scheme:light;
   --kanji:"Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", sans-serif;   /* Japanese text; Settings → Font can switch it */
+  --jw:600; --jw-big:800;   /* Japanese text thickness (body, big characters); Settings → Thickness */
   --brand:"Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", serif;
   --ui:"Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
   box-sizing:border-box;
@@ -89,7 +91,7 @@ body{margin:0;background:radial-gradient(ellipse 90% 340px at 50% 0,var(--glow),
 .expl{margin:14px 0 0;font-size:16px}
 .vrow{display:grid;grid-template-columns:minmax(4.5em,auto) auto 1fr;gap:4px 12px;align-items:baseline;padding:5px 0;border-top:1px solid var(--line)}
 .vrow:first-of-type{border-top:0}
-.vrow b{font-family:var(--kanji);font-weight:600;font-size:20px}
+.vrow b{font-family:var(--kanji);font-weight:var(--jw);font-size:20px}
 .vrow .vr{font-size:14px;color:var(--muted);white-space:nowrap}
 .vrow span:last-child{font-size:15px}
 .vrow span.notdeck{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:1px 8px;white-space:nowrap;justify-self:start}
@@ -143,6 +145,10 @@ h5{font-size:12px;font-weight:500;color:var(--muted);margin:10px 0 6px;letter-sp
 .seg input{position:absolute;opacity:0;pointer-events:none}
 .seg label:has(input:checked){background:var(--ink);color:var(--paper)}
 .seg label:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:-3px}
+/* many choices (Font): a wrapping grid of buttons instead of one row */
+.seg.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}
+.seg.grid label{display:flex;align-items:center;justify-content:center;gap:2px;box-shadow:inset 0 0 0 .75px var(--line)}
+.seg.grid label+label{border-left:0}
 /* lesson-size slider + number box */
 .slider{display:flex;align-items:center;gap:14px}
 .slider input[type=range]{flex:1;min-width:0;height:28px;margin:0;background:none;-webkit-appearance:none;appearance:none;cursor:pointer;--fill:8%}
@@ -214,7 +220,7 @@ h3{font-size:14px;margin:22px 0 10px;font-weight:700;color:var(--muted)}
 .stage span{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}
-.tile{border:0;aspect-ratio:1;border-radius:4px;font-family:var(--kanji);font-weight:600;font-size:26px;display:grid;place-items:center;background:var(--s0);color:var(--muted)}
+.tile{border:0;aspect-ratio:1;border-radius:4px;font-family:var(--kanji);font-weight:var(--jw);font-size:26px;display:grid;place-items:center;background:var(--s0);color:var(--muted)}
 .tile.long{font-size:18px}
 .tile[data-s="1"]{background:var(--s1);color:var(--ink)}
 .tile[data-s="2"]{background:var(--s2);color:var(--ink)}
@@ -231,7 +237,7 @@ footer p{margin:0;flex-basis:100%}
 .card{border-radius:8px;overflow:hidden;border:1.5px solid var(--line);background:var(--surface);position:relative}
 .tag{position:absolute;top:10px;left:14px;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;opacity:.7;z-index:1}
 .card.reading .tag,.card.kun .tag{color:var(--indigo-ink)}
-.face{display:grid;place-items:center;padding:34px 16px 30px;font-family:var(--kanji);font-weight:800;font-size:clamp(110px,26vw,170px);line-height:1;background:var(--meaning);color:var(--ink);transition:background .2s,color .2s}
+.face{display:grid;place-items:center;padding:34px 16px 30px;font-family:var(--kanji);font-weight:var(--jw-big);font-size:clamp(110px,26vw,170px);line-height:1;background:var(--meaning);color:var(--ink);transition:background .2s,color .2s}
 .card.reading .face{background:var(--indigo);color:var(--indigo-ink)}
 .card.kun .face{background:var(--kun);color:var(--indigo-ink)}
 .prompt{padding:10px 16px;font-weight:700;font-size:15px;text-align:center;border-top:1.5px solid var(--line);border-bottom:1.5px solid var(--line)}
@@ -249,10 +255,10 @@ footer p{margin:0;flex-basis:100%}
 .info dl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0}
 .info dt{color:var(--muted);font-size:14px}
 .info dd{margin:0;font-size:18px}
-.info dd.jp{font-family:var(--kanji);font-weight:600;font-size:20px}
+.info dd.jp{font-family:var(--kanji);font-weight:var(--jw);font-size:20px}
 .ex{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
 .ex .lbl{color:var(--muted);font-size:14px;margin-bottom:4px}
-.ex .jp{font-family:var(--kanji);font-weight:600;font-size:22px;line-height:1.5}
+.ex .jp{font-family:var(--kanji);font-weight:var(--jw);font-size:22px;line-height:1.5}
 .ex .rd{font-size:14px;color:var(--muted)}
 .ex .en{font-size:16px;margin-top:2px}
 mark{background:color-mix(in srgb,var(--accent) 32%,transparent);color:inherit;border-radius:2px;padding:0 2px}
@@ -264,6 +270,13 @@ mark{background:color-mix(in srgb,var(--accent) 32%,transparent);color:inherit;b
 /* Settings → Font (Clean is the default in :root) */
 :root[data-font="textbook"]{--kanji:"Klee One", "Hiragino Mincho ProN", "Yu Mincho", serif}
 :root[data-font="brush"]{--kanji:"Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", serif}
+:root[data-font="ud"]{--kanji:"BIZ UDPGothic", "Hiragino Sans", "Yu Gothic", sans-serif}
+:root[data-font="rounded"]{--kanji:"Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif}
+:root[data-font="pen"]{--kanji:"Zen Kurenaido", "Hiragino Sans", "Yu Gothic", sans-serif}
+:root[data-font="device"]{--kanji:system-ui, "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Meiryo", sans-serif}
+/* Settings → Thickness (Regular is the default in :root) */
+:root[data-weight="light"]{--jw:400; --jw-big:500}
+:root[data-weight="bold"]{--jw:800; --jw-big:900}
 .fontdemo{font-size:18px;margin-right:6px;line-height:1}
 /* Your own meanings */
 .mychips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
@@ -277,7 +290,7 @@ mark{background:color-mix(in srgb,var(--accent) 32%,transparent);color:inherit;b
 .optks{display:flex;flex-wrap:wrap;gap:8px}
 .optk{display:flex;align-items:baseline;gap:8px;border:1.5px dashed var(--line);background:var(--paper);color:var(--ink);border-radius:6px;padding:6px 12px;font:inherit;font-size:14px;cursor:pointer}
 .optk:hover{border-color:var(--accent)}
-.optk b{font-family:var(--kanji);font-weight:600;font-size:22px}
+.optk b{font-family:var(--kanji);font-weight:var(--jw);font-size:22px}
 .optk span{color:var(--muted)}
 /* Stroke order: animation + step strip (KanjiVG) */
 .strokes .lbl{display:flex;align-items:center;gap:10px}
@@ -289,9 +302,9 @@ mark{background:color-mix(in srgb,var(--accent) 32%,transparent);color:inherit;b
 .strokes path.ghost{stroke:var(--line)}
 .strokes path.now{stroke:var(--accent);stroke-width:6}
 .summary{text-align:center;padding:36px 16px}
-.summary .k{font-family:var(--kanji);font-size:40px;font-weight:800}
+.summary .k{font-family:var(--kanji);font-size:40px;font-weight:var(--jw-big)}
 .summary .lists{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:14px 0 22px}
-.summary .lists span{font-family:var(--kanji);font-size:26px;padding:4px 10px;border-radius:4px}
+.summary .lists span{font-family:var(--kanji);font-weight:var(--jw);font-size:26px;padding:4px 10px;border-radius:4px}
 .summary .lists .w{background:color-mix(in srgb,var(--bad) 18%,transparent)}
 .summary .lists .r{background:color-mix(in srgb,var(--ok) 18%,transparent)}
 
@@ -313,7 +326,8 @@ h4{font-size:13px;margin:14px 0 8px;font-weight:500;color:var(--muted)}
 try{ const s=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
   if(s.theme==="light"||s.theme==="dark") document.documentElement.dataset.theme=s.theme;
   if(s.petals==="on"||s.petals==="off") document.documentElement.dataset.petals=s.petals;
-  if(s.font==="textbook"||s.font==="brush") document.documentElement.dataset.font=s.font; }catch(e){}
+  if(["textbook","brush","ud","rounded","pen","device"].includes(s.font)) document.documentElement.dataset.font=s.font;
+  if(s.weight==="light"||s.weight==="bold") document.documentElement.dataset.weight=s.weight; }catch(e){}
 </script>
 <!-- Optional account sync. Pinned version; loads async so guest mode never waits on it. -->
 <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
@@ -453,12 +467,25 @@ try{ const s=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
     </fieldset>
     <fieldset>
       <legend>Font</legend>
-      <div class="seg">
+      <div class="seg grid">
         <label><input type="radio" name="font" value="clean"><span class="fontdemo" style="font-family:'Zen Kaku Gothic New',sans-serif">書</span>Clean</label>
         <label><input type="radio" name="font" value="textbook"><span class="fontdemo" style="font-family:'Klee One',serif">書</span>Textbook</label>
         <label><input type="radio" name="font" value="brush"><span class="fontdemo" style="font-family:'Shippori Mincho B1',serif">書</span>Brush</label>
+        <label><input type="radio" name="font" value="ud"><span class="fontdemo" style="font-family:'BIZ UDPGothic',sans-serif">書</span>Easy-read</label>
+        <label><input type="radio" name="font" value="rounded"><span class="fontdemo" style="font-family:'Zen Maru Gothic',sans-serif">書</span>Rounded</label>
+        <label><input type="radio" name="font" value="pen"><span class="fontdemo" style="font-family:'Zen Kurenaido',sans-serif">書</span>Pen</label>
+        <label><input type="radio" name="font" value="device"><span class="fontdemo" style="font-family:system-ui,sans-serif">書</span>Device</label>
       </div>
-      <p class="note">For all Japanese text. Clean is easiest to read, Textbook looks like handwriting, and Brush is the classic printed style.</p>
+      <p class="note">For all Japanese text. Easy-read is designed for legibility, Textbook and Pen look handwritten, Brush is the classic printed style, and Device uses your phone or computer's own font.</p>
+    </fieldset>
+    <fieldset>
+      <legend>Thickness</legend>
+      <div class="seg">
+        <label><input type="radio" name="weight" value="light">Light</label>
+        <label><input type="radio" name="weight" value="regular">Regular</label>
+        <label><input type="radio" name="weight" value="bold">Bold</label>
+      </div>
+      <p class="note">How thick Japanese characters are drawn. Some fonts (Pen, Textbook) only come in one or two weights, so the change is smaller there.</p>
     </fieldset>
     <fieldset>
       <legend>New items per lesson</legend>
@@ -3247,7 +3274,7 @@ document.addEventListener("focusin", e=>{ const t=e.target.closest("[data-tip]")
 window.addEventListener("scroll", ()=>{ tip.hidden=true; }, {passive:true});
 
 // ---------- Settings ----------
-let settings = {theme:"auto", petals:"auto", font:"clean", batch:"5", reviewCap:"50"};
+let settings = {theme:"auto", petals:"auto", font:"clean", weight:"regular", batch:"5", reviewCap:"50"};
 const reviewCap = () => settings.reviewCap==="all" ? Infinity : (parseInt(settings.reviewCap,10) || 50);
 const BATCH_MIN = 1, BATCH_MAX = 50;
 const clampBatch = n => Math.min(BATCH_MAX, Math.max(BATCH_MIN, Math.round(n)));
@@ -3258,6 +3285,7 @@ function applySettings(){
   if(settings.theme==="auto") delete r.dataset.theme; else r.dataset.theme=settings.theme;
   if(settings.petals==="auto") delete r.dataset.petals; else r.dataset.petals=settings.petals;
   if(settings.font==="clean") delete r.dataset.font; else r.dataset.font=settings.font;
+  if(settings.weight==="regular") delete r.dataset.weight; else r.dataset.weight=settings.weight;
   try{ localStorage.setItem("sumi-settings", JSON.stringify(settings)); }catch(e){}
 }
 function showBatch(n){

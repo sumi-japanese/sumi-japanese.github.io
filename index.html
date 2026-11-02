@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="description" content="Free Japanese study site with spaced repetition: kana, kanji, vocabulary and grammar. No account needed.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&amp;family=Klee+One:wght@600&amp;family=Zen+Kaku+Gothic+New:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&amp;family=Klee+One:wght@600&amp;family=BIZ+UDPGothic:wght@700&amp;family=Zen+Maru+Gothic:wght@700&amp;family=Zen+Kurenaido&amp;family=Zen+Kaku+Gothic+New:wght@400;500;700&amp;display=swap" rel="stylesheet">
 <style>
 :root{
   --paper:#FBF3F5; --surface:#FFFFFF; --ink:#3B2630; --text2:#5E4652; --muted:#7E6170; --line:#EFD9E1; --line2:#E3C6D1;
@@ -18,6 +18,10 @@
 }
 :root[data-font="textbook"]{--jp:"Klee One", "Yu Mincho", serif}
 :root[data-font="brush"]{--jp:"Shippori Mincho B1", "Yu Mincho", serif}
+:root[data-font="ud"]{--jp:"BIZ UDPGothic", "Yu Gothic", sans-serif}
+:root[data-font="rounded"]{--jp:"Zen Maru Gothic", "Yu Gothic", sans-serif}
+:root[data-font="pen"]{--jp:"Zen Kurenaido", "Yu Gothic", sans-serif}
+:root[data-font="device"]{--jp:system-ui, "Hiragino Sans", "Yu Gothic", sans-serif}
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --paper:#1C1418; --surface:#271C22; --ink:#F5E8ED; --text2:#D9C4CD; --muted:#BFA3B0; --line:#3D2C35; --line2:#4A3540;
@@ -69,7 +73,7 @@ input:focus-visible,button:focus-visible,a:focus-visible,summary:focus-visible{o
 try{ var st=JSON.parse(localStorage.getItem("sumi-settings")||"{}");
   if(st.theme==="light"||st.theme==="dark") document.documentElement.dataset.theme=st.theme;
   if(st.petals==="on"||st.petals==="off") document.documentElement.dataset.petals=st.petals;
-  if(st.font==="textbook"||st.font==="brush") document.documentElement.dataset.font=st.font; }catch(e){}
+  if(["textbook","brush","ud","rounded","pen","device"].includes(st.font)) document.documentElement.dataset.font=st.font; }catch(e){}
 </script>
 </head>
 <body>
