@@ -3107,7 +3107,7 @@ $("decks").addEventListener("click", e=>{
 $("grids").addEventListener("click", e=>{
   const t=e.target.closest(".tile"); if(!t) return; const x=BY[t.dataset.id], it=state.items[x.id];
   fillFace($("dFace"), x, "");
-  $("dInfo").innerHTML = infoHTML(x) + strokesHTML(x) + `<p style="color:var(--muted);font-size:14px;margin:12px 0 0">${
+  $("dInfo").innerHTML = infoHTML(x) + strokesHTML(x) + `<p style="color:var(--muted);font-size:14px;margin:12px 0 0">${tagOf(x)} · ${
     !it ? "Not started yet." : it.stage>=9 ? "Mastered. It won't come back for review." : `${GROUPS[GROUP(it.stage)][0]}${it.skip?" (skipped by your level)":""} · next review ${it.next<=Date.now()?"now":fmtWhen(it.next)}`}</p>${
     it ? `<button class="btn" data-relearn="${x.id}" style="margin-top:12px">Relearn</button>` : ""}`;
   $("dlg").showModal(); loadStrokes($("dInfo"));
@@ -3118,9 +3118,10 @@ document.addEventListener("click", e=>{
   const b=e.target.closest("[data-optk]"); if(!b) return;
   const x=BY[b.dataset.optk], it=state.items[x.id];
   fillFace($("optFace"), x, "");
-  $("optInfo").innerHTML = `<p class="note" style="margin:0 0 12px">${x.deck==="opt"
+  $("optInfo").innerHTML = `<p class="note" style="margin:0 0 12px"><b>${tagOf(x)}</b> · ${x.deck==="opt"
     ? "Optional: this kanji isn't on the jōyō list of everyday kanji, so Sumi doesn't require it. Turn on the Optional kanji deck to study it with reviews."
     : !it ? "Not started yet: it comes up in your kanji lessons." : it.stage>=9 ? "Mastered." : `${GROUPS[GROUP(it.stage)][0]} · next review ${it.next<=Date.now()?"now":fmtWhen(it.next)}`}</p>` +
+    (!it && x.deck!=="opt" ? `<button type="button" class="btn primary" data-learnnow="${x.id}" style="margin:0 0 16px">Learn ${x.k} now</button>` : "") +
     infoHTML(x) + strokesHTML(x);
   $("optDlg").showModal(); loadStrokes($("optInfo"));
 });
@@ -3143,6 +3144,14 @@ function drawLesson(){
   $("prevL").disabled = lessonIdx===0;
   $("nextL").textContent = lessonIdx===lessonSet.length-1 ? "Start quiz" : "Next";
 }
+// "Learn 反 now" in a kanji pop-up: a one-item lesson for it right away (kanji belong to the JLPT side)
+document.addEventListener("click", e=>{
+  const b=e.target.closest("[data-learnnow]"); if(!b) return;
+  const x=BY[b.dataset.learnnow];
+  if(Q && Q.done.length < Q.total && !confirm(`Leave this session to learn ${x.k} now? Answers you've finished are already saved.`)) return;
+  document.querySelectorAll("dialog[open]").forEach(d=>d.close());
+  Q=null; section="j"; lessonSet=[x]; lessonIdx=0; show("lesson"); drawLesson();
+});
 $("prevL").onclick=()=>{ if(lessonIdx>0){lessonIdx--; drawLesson();} };
 $("nextL").onclick=()=>{ if(lessonIdx<lessonSet.length-1){lessonIdx++; drawLesson();} else startQuiz(lessonSet,"lesson"); };
 
