@@ -100,6 +100,9 @@ body{margin:0;background:radial-gradient(ellipse 90% 340px at 50% 0,var(--glow),
 .vrow{display:grid;grid-template-columns:minmax(4.5em,auto) auto 1fr;gap:4px 12px;align-items:baseline;padding:5px 0;border-top:1px solid var(--line)}
 .vrow:first-of-type{border-top:0}
 .vrow b{font-family:var(--kanji);font-weight:var(--jw);font-size:20px}
+.vrow.vlink{cursor:pointer;border-radius:6px;margin:0 -8px;padding-left:8px;padding-right:8px}
+.vrow.vlink b{text-decoration:underline dotted var(--muted);text-underline-offset:5px}
+.vrow.vlink:hover,.vrow.vlink:focus-visible{background:var(--glow);outline:none}
 .vrow .vr{font-size:14px;color:var(--muted);white-space:nowrap}
 .vrow span:last-child{font-size:15px}
 .vrow span.notdeck{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:1px 8px;white-space:nowrap;justify-self:start}
@@ -2920,7 +2923,8 @@ function infoBody(x){
     const kanjiRow = ch => {
       const own = BY[ch]?.type==="kanji" ? BY[ch] : null;
       const mean = own ? own.meanings.slice(0,2).join(", ") : (KANJI_EXTRA[ch]||"").split(", ").slice(0,2).join(", ") || "—";
-      return `<div class="vrow"><b>${ch}</b><span>${mean}</span>${!own ? `<span class="notdeck">Not in your decks yet</span>`
+      // kanji Sumi teaches: tap the row to open its lesson in a pop-up
+      return `<div class="vrow${own ? ` vlink" data-optk="${ch}" role="button" tabindex="0" aria-label="Open the lesson for ${ch}, ${mean}` : ""}"><b>${ch}</b><span>${mean}</span>${!own ? `<span class="notdeck">Not in your decks yet</span>`
         : !state.items[ch] ? `<span class="notdeck">Kanji lesson first</span>` : ""}</div>`;
     };
     return `<dl>
@@ -3109,14 +3113,19 @@ $("grids").addEventListener("click", e=>{
   $("dlg").showModal(); loadStrokes($("dInfo"));
 });
 $("dClose").onclick=()=>$("dlg").close();
-// optional kanji chip (in any word's details) → its lesson in a pop-up, on top of whatever is open
+// a kanji in any word's details (its row, or an optional kanji chip) → its lesson in a pop-up, on top of whatever is open
 document.addEventListener("click", e=>{
   const b=e.target.closest("[data-optk]"); if(!b) return;
-  const x=BY[b.dataset.optk];
+  const x=BY[b.dataset.optk], it=state.items[x.id];
   fillFace($("optFace"), x, "");
-  $("optInfo").innerHTML = `<p class="note" style="margin:0 0 12px">Optional: this kanji isn't on the jōyō list of everyday kanji, so Sumi doesn't require it. Turn on the Optional kanji deck to study it with reviews.</p>` +
+  $("optInfo").innerHTML = `<p class="note" style="margin:0 0 12px">${x.deck==="opt"
+    ? "Optional: this kanji isn't on the jōyō list of everyday kanji, so Sumi doesn't require it. Turn on the Optional kanji deck to study it with reviews."
+    : !it ? "Not started yet: it comes up in your kanji lessons." : it.stage>=9 ? "Mastered." : `${GROUPS[GROUP(it.stage)][0]} · next review ${it.next<=Date.now()?"now":fmtWhen(it.next)}`}</p>` +
     infoHTML(x) + strokesHTML(x);
   $("optDlg").showModal(); loadStrokes($("optInfo"));
+});
+document.addEventListener("keydown", e=>{
+  if((e.key==="Enter" || e.key===" ") && e.target.matches?.(".vlink")){ e.preventDefault(); e.stopPropagation(); e.target.click(); }
 });
 $("optClose").onclick=()=>$("optDlg").close();
 
